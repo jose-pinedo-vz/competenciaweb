@@ -75,14 +75,15 @@ function cumple(p, { ignorarMarcas = false } = {}) {
   if (filtros.soloDisponibles && p.stock === 0) return false;
   if (filtros.soloOfertas && !p.antes) return false;
   if (filtros.busqueda) {
-    const texto = normalizar(`${p.nombre} ${p.marca} ${p.sku}`);
+    const texto = normalizar(`${p.nombre} ${p.marca} ${p.sku} ${p.descripcion ?? ''}`);
     if (!normalizar(filtros.busqueda).split(/\s+/).every((palabra) => texto.includes(palabra))) return false;
   }
   return true;
 }
 
 const comparadores = {
-  relevancia: (a, b) => (b.stock > 0) - (a.stock > 0) || !!b.nuevo - !!a.nuevo || descuento(b) - descuento(a),
+  relevancia: (a, b) =>
+    (b.stock > 0) - (a.stock > 0) || !!b.destacado - !!a.destacado || !!b.nuevo - !!a.nuevo || descuento(b) - descuento(a),
   'precio-asc': (a, b) => a.precio - b.precio,
   'precio-desc': (a, b) => b.precio - a.precio,
   descuento: (a, b) => descuento(b) - descuento(a),
@@ -116,6 +117,7 @@ function tarjetaProducto(p) {
   const marcaDestacada = MARCAS_DESTACADAS.has(p.marca);
 
   const insignias = [
+    p.destacado && '<span class="inline-flex items-center gap-1 rounded-md bg-destaque px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-destaque-texto shadow-sm"><i class="fa-solid fa-star text-[0.55rem]" aria-hidden="true"></i>Destacado</span>',
     p.nuevo && '<span class="rounded-md bg-primario px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white shadow-sm">Nuevo</span>',
     pct && `<span class="rounded-md bg-acento px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white shadow-sm">Oferta −${pct}%</span>`,
   ]
@@ -128,10 +130,11 @@ function tarjetaProducto(p) {
 
   return `
     <article class="group flex flex-col overflow-hidden rounded-2xl border border-borde bg-superficie transition duration-300 hover:-translate-y-0.5 hover:border-primario/40 hover:shadow-xl hover:shadow-black/5">
-      <div class="relative aspect-[4/3] overflow-hidden bg-linear-to-br from-primario-suave to-superficie-alt sm:aspect-square">
+      <div class="relative aspect-[4/3] overflow-hidden sm:aspect-square ${p.imagen ? 'bg-white' : 'bg-linear-to-br from-primario-suave to-superficie-alt'}">
         ${
           p.imagen
-            ? `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy" class="size-full object-contain p-4 ${agotado ? 'opacity-50 grayscale' : ''}" />`
+            ? `<img src="${encodeURI(p.imagen)}" alt="${p.nombre}" loading="lazy" decoding="async"
+                    class="size-full object-contain p-4 text-[0px] text-transparent transition-transform duration-500 group-hover:scale-105 ${agotado ? 'opacity-50 grayscale' : ''}" />`
             : `<span class="absolute inset-0 flex items-center justify-center text-5xl text-primario-texto/55 transition-transform duration-500 group-hover:scale-110 sm:text-6xl ${agotado ? 'opacity-40 grayscale' : ''}" aria-hidden="true">
                  <i class="${sub?.icono ?? 'fa-solid fa-box'}"></i>
                </span>`
@@ -150,6 +153,7 @@ function tarjetaProducto(p) {
         </p>
         <h3 class="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-texto">${p.nombre}</h3>
         <p class="mt-1 text-[0.68rem] tabular-nums text-texto-tenue">SKU ${p.sku}</p>
+        ${p.descripcion ? `<p class="mt-2 line-clamp-2 text-xs leading-relaxed text-texto-suave sm:line-clamp-3" title="${p.descripcion}">${p.descripcion}</p>` : ''}
 
         <div class="mt-3">
           ${
@@ -199,7 +203,11 @@ export function renderCatalogo(contenedor) {
         catalogoDemostracion
           ? `<p class="mt-5 flex items-start gap-2.5 rounded-xl border border-destaque/50 bg-destaque/10 px-4 py-3 text-xs leading-relaxed text-texto sm:text-sm">
                <i class="fa-solid fa-circle-info mt-0.5 text-destaque-texto oscuro:text-destaque" aria-hidden="true"></i>
-               <span><strong>Catálogo de demostración.</strong> Productos, precios y existencias son ilustrativos; confirma por WhatsApp antes de tu compra.</span>
+               <span>${
+                 productos.some((p) => p.verificado)
+                   ? '<strong>Catálogo en construcción.</strong> Los productos <strong>destacados con fotografía</strong> tienen precio y existencia reales; el resto es de demostración. Confirma por WhatsApp antes de tu compra.'
+                   : '<strong>Catálogo de demostración.</strong> Productos, precios y existencias son ilustrativos; confirma por WhatsApp antes de tu compra.'
+               }</span>
              </p>`
           : ''
       }

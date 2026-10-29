@@ -16,7 +16,8 @@ Elementos opcionales para futuras versiones del sitio.
 - [ ] Mes de fundación, para calcular los años exactos de trayectoria en lugar de "más de 40".
 - [ ] Imagen para redes sociales en 1200×630 px (hoy `og:image` usa el logotipo).
 - [ ] **Sustituir el catálogo de demostración** (`public/js/catalogo.js`) por el inventario real: productos, SKU, precios con IVA y existencias. Después, `catalogoDemostracion = false`.
-- [ ] Fotografías de producto (`public/img/productos/`) y campo `imagen` en cada producto.
+- [ ] Fotografías del resto de los productos (en `public/img_productos/`, como los 6 reales ya cargados) y campo `imagen` en cada uno.
+- [ ] Renombrar `img_productos/Sin título.jpg` a un nombre sin espacios ni acentos (p. ej. `llave-monomando-glm300.jpg`). Hoy funciona porque la ruta se codifica con `encodeURI`, pero un nombre limpio es más seguro al publicar.
 - [ ] Contraste de la paleta corporativa: el texto blanco sobre el rojo #E63946 (4.2:1) y, en modo oscuro, sobre #3B82F6 (3.7:1) y #EF4444 (3.8:1) queda por debajo de AA (4.5:1). Alternativas cercanas que sí cumplen: #D62839, #2563EB y #DC2626.
 - [ ] Confirmar con el negocio si es **distribuidor autorizado** de Coflex, Fleximatic o Presto, o si cuenta con alguna certificación o política de garantía. Hasta entonces el sitio dice "Marcas que manejamos" y "Tradición familiar", sin prometer certificación ni garantía.
 - [ ] Nombres de las marcas de impermeabilizantes, pintura y material eléctrico que se manejan realmente, para mostrarlas en la franja de marcas (hoy aparecen como "Línea · Marcas líderes del mercado").
@@ -75,3 +76,28 @@ Elementos opcionales para futuras versiones del sitio.
 - `node --check` sin errores en los 9 módulos de `public/js/`.
 - 42 de 42 pruebas automáticas en Firefox headless: navegación, mega-menú, filtros, líneas, franja de marcas, insignias, mensajes de WhatsApp, carrito y modo oscuro. 0 errores y 0 avisos en consola.
 - Capturas revisadas en escritorio (1440 px) y móvil (390 px) con las paletas Corporativa (claro), Tradición (oscuro) y Moderno (claro).
+
+### 2026-10-29 — Primeros 6 productos reales (Plomería · Coflex y Fleximatic)
+
+**Cambios**
+
+- Se agregaron 6 productos reales con foto, descripción, precio con IVA y existencias, marcados `destacado: true` y `verificado: true`:
+  - **Coflex:** LA-CFX-300 (llave monomando GLM300), LA-CFX-102 (coladera PC-102) y LA-CFX-402 (regadera de cascada PR-C402).
+  - **Fleximatic:** LA-FLX-2249 (coladera Push, en oferta), LA-FLX-2605 (coladera Zero Olores, en oferta) y LA-FLX-2291 (céspol para fregadero).
+- Las 2 ofertas (2249 y 2605) también aparecen en *Outlet › Ofertas de temporada* (`promo: 'temporada'`).
+- **Orden "Relevancia":** disponibles → destacados → nuevos → mayor descuento.
+- **Tarjeta:**
+  - Insignia "Destacado".
+  - Foto sobre fondo blanco, con un zoom suave al pasar el cursor. La ruta se codifica con `encodeURI` y el texto alternativo está oculto a la vista, pero no para lectores de pantalla.
+  - Descripción breve (2 líneas en móvil, 3 en escritorio).
+  - La búsqueda también busca en la descripción.
+- **Carrito:** muestra la miniatura de la foto cuando existe.
+- **Aviso del catálogo:** ahora distingue los productos *destacados con fotografía* (reales) del resto (demostración).
+
+**Archivos modificados:** `public/js/catalogo.js` (productos y documentación de campos), `public/js/tienda.js` (orden, insignia, foto, descripción, búsqueda y aviso), `public/js/carrito.js` (miniatura) y `PENDIENTES.md`.
+
+**Verificación:**
+
+- `node --check` sin errores en todos los módulos.
+- Las 6 imágenes existen y cargan (incluida `Sin título.jpg`); cada foto corresponde a su producto.
+- 15 de 15 pruebas en Firefox: destacados primero, filtros de marca Coflex/Fleximatic, rango de precio, subcategoría Llaves, Outlet, búsqueda por descripción, carrito y pedido por WhatsApp. 0 errores en consola y ningún 404.

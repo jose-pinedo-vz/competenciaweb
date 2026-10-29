@@ -7,7 +7,12 @@
  * - Los precios están en MXN con IVA incluido.
  * - `antes`: precio anterior (si existe, el producto se muestra con descuento).
  * - `promo`: 'remate' o 'temporada' → el producto aparece también en Outlet.
- * - `imagen` (opcional): ruta en public/img/; si no hay, se muestra el ícono de la subcategoría.
+ * - `imagen` (opcional): ruta relativa a public/ (p. ej. 'img_productos/coladera.jpg');
+ *   si no hay, se muestra el ícono de la subcategoría.
+ * - `descripcion` (opcional): texto corto que se muestra en la tarjeta.
+ * - `destacado`: aparece primero en el orden "Relevancia" y lleva la insignia "Destacado".
+ * - `verificado`: producto real confirmado por el negocio (nombre, precio y existencias);
+ *   el resto del catálogo sigue siendo de demostración.
  */
 
 export const catalogoDemostracion = true;
@@ -156,7 +161,21 @@ export const productos = [
   { sku: 'LA-CF-0510', nombre: 'Esmalte alquidálico negro brillante 1 L', marca: 'Comex', dep: 'construccion', sub: 'pintura', precio: 229, stock: 8 },
   { sku: 'LA-CF-0511', nombre: 'Cinta masking 1" × 50 m', marca: 'Truper', dep: 'construccion', sub: 'pintura', precio: 39, stock: 60 },
 
-  // Plomería y Grifería
+  // Plomería y Grifería · productos reales destacados (datos confirmados por el negocio)
+  { sku: 'LA-CFX-300', nombre: 'Llave monomando para lavabo GLM300', marca: 'Coflex', dep: 'plomeria', sub: 'llaves', precio: 820, stock: 5, destacado: true, verificado: true, imagen: 'img_productos/Sin título.jpg',
+    descripcion: 'Llave para lavabo de una sola palanca, acabado cromo, con cuerpo de latón y resina. Tiene aireador y flujo máximo de 5.7 L/min.' },
+  { sku: 'LA-CFX-102', nombre: 'Coladera universal PC-102', marca: 'Coflex', dep: 'plomeria', sub: 'conexiones', precio: 104.27, stock: 15, destacado: true, verificado: true, imagen: 'img_productos/coladera.jpg',
+    descripcion: 'Coladera universal con rejilla de acero inoxidable y trampa de agua para reducir malos olores e insectos.' },
+  { sku: 'LA-CFX-402', nombre: 'Regadera de cascada PR-C402, 20 cm', marca: 'Coflex', dep: 'plomeria', sub: 'llaves', precio: 411.32, stock: 8, destacado: true, verificado: true, imagen: 'img_productos/regadera.jpg',
+    descripcion: 'Regadera tipo cascada de 20 cm con cuerpo de ABS cromado, regulador de flujo para ahorro de agua y fácil instalación.' },
+  { sku: 'LA-FLX-2249', nombre: 'Coladera Universal Push 2249', marca: 'Fleximatic', dep: 'plomeria', sub: 'conexiones', precio: 410, antes: 455, promo: 'temporada', stock: 10, destacado: true, verificado: true, imagen: 'img_productos/coladeraUniversal.jpg',
+    descripcion: 'Coladera universal para conexiones de 2, 3 y 4 pulgadas. Tiene bisel y cubierta de acero inoxidable, empaque antiolores de silicón y sistema Push de latón.' },
+  { sku: 'LA-FLX-2605', nombre: 'Coladera Universal Rejilla Acero 2605 Zero Olores', marca: 'Fleximatic', dep: 'plomeria', sub: 'conexiones', precio: 199, antes: 224, promo: 'temporada', stock: 12, destacado: true, verificado: true, imagen: 'img_productos/ColaderaUniversalAcero.jpg',
+    descripcion: 'Coladera universal con rejilla de acero, trampa de agua extra larga y tres barreras antiolores con check antirretorno.' },
+  { sku: 'LA-FLX-2291', nombre: 'Céspol para Fregadero Bote Grande FL2291', marca: 'Fleximatic', dep: 'plomeria', sub: 'conexiones', precio: 77, stock: 20, destacado: true, verificado: true, imagen: 'img_productos/CespoParaRegadera.jpg',
+    descripcion: 'Desagüe para fregadero con bote grande y tubo flexible de hasta 25 cm. Fabricado en polipropileno, PVC flexible y silicón.' },
+
+  // Plomería y Grifería · demostración
   { sku: 'LA-PG-0101', nombre: 'Bomba periférica 1/2 HP', marca: 'Truper', dep: 'plomeria', sub: 'bombas', precio: 1290, stock: 4 },
   { sku: 'LA-PG-0102', nombre: 'Bomba sumergible 1 HP para cisterna', marca: 'Pretul', dep: 'plomeria', sub: 'bombas', precio: 2390, stock: 0 },
   { sku: 'LA-PG-0201', nombre: 'Tubo PPR 1/2", tramo de 4 m', marca: 'Tuboplus', dep: 'plomeria', sub: 'tuberias', precio: 139, stock: 25 },

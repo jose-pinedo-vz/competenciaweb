@@ -117,9 +117,13 @@ function renderPanel() {
           const p = productoPorSku(sku);
           return `
           <li class="flex gap-3 py-4">
-            <span class="flex size-16 shrink-0 items-center justify-center rounded-xl bg-superficie-alt text-2xl text-primario-texto/70">
-              <i class="${subcategoriaDe(p)?.icono ?? 'fa-solid fa-box'}" aria-hidden="true"></i>
-            </span>
+            ${
+              p.imagen
+                ? `<img src="${encodeURI(p.imagen)}" alt="" class="size-16 shrink-0 rounded-xl bg-white object-contain p-1.5 ring-1 ring-borde" />`
+                : `<span class="flex size-16 shrink-0 items-center justify-center rounded-xl bg-superficie-alt text-2xl text-primario-texto/70">
+                     <i class="${subcategoriaDe(p)?.icono ?? 'fa-solid fa-box'}" aria-hidden="true"></i>
+                   </span>`
+            }
             <div class="min-w-0 flex-1">
               <p class="line-clamp-2 text-sm font-semibold text-texto">${p.nombre}</p>
               <p class="mt-0.5 text-xs text-texto-tenue">SKU ${p.sku} · ${precioMXN(p.precio)} c/u</p>
