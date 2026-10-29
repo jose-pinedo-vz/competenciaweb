@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es-MX" data-paleta="industrial" data-modo="claro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>Ferretería y Tlapalería Los Arcos | El Pitillal, Puerto Vallarta</title>
+    <meta
+      name="description"
+      content="Ferretería y Tlapalería Los Arcos: desde 1984 en El Pitillal, Puerto Vallarta. Plomería, adhesivos, impermeabilizantes, tornillería, material eléctrico y pintura. Cotiza por WhatsApp."
+    />
+    <meta name="keywords" content="ferretería, tlapalería, El Pitillal, Puerto Vallarta, plomería, Coflex, Fleximatic, Presto, impermeabilizantes, pintura, material eléctrico" />
+    <meta name="author" content="Ferretería y Tlapalería Los Arcos" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:title" content="Ferretería y Tlapalería Los Arcos" />
+    <meta property="og:description" content="Si no conoces los Arcos no conoces el Pitillal. Más de 40 años surtiendo a El Pitillal, Puerto Vallarta." />
+    <meta property="og:image" content="img/logo-arcos.jpeg" />
+
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
+
+    <!-- Aplica el modo guardado antes de pintar para evitar un destello de color -->
+    <script>
+      try {
+        const modo = localStorage.getItem('arcos-modo');
+        const paleta = localStorage.getItem('arcos-paleta');
+        document.documentElement.dataset.modo =
+          modo || (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+        if (paleta) document.documentElement.dataset.paleta = paleta;
+      } catch {}
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+      /* Colores semánticos: cada uno apunta a una variable --p-* que main.js
+         cambia en tiempo real según la paleta y el modo elegidos (ver data.js). */
+      @theme inline {
+        --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+        --color-fondo: var(--p-fondo);
+        --color-superficie: var(--p-superficie);
+        --color-superficie-alt: var(--p-superficie-alt);
+        --color-borde: var(--p-borde);
+        --color-texto: var(--p-texto);
+        --color-texto-suave: var(--p-texto-suave);
+        --color-texto-tenue: var(--p-texto-tenue);
+
+        --color-primario: var(--p-primario);
+        --color-primario-hover: var(--p-primario-hover);
+        --color-primario-texto: var(--p-primario-texto);
+        --color-primario-suave: var(--p-primario-suave);
+
+        --color-acento: var(--p-acento);
+        --color-acento-hover: var(--p-acento-hover);
+        --color-acento-texto: var(--p-acento-texto);
+
+        --color-destaque: var(--p-destaque);
+        --color-destaque-texto: var(--p-destaque-texto);
+
+        --color-hero-fondo: var(--p-hero-fondo);
+        --color-hero-texto: var(--p-hero-texto);
+        --color-hero-suave: var(--p-hero-suave);
+
+        --color-whatsapp: #25d366;
+        --color-whatsapp-hover: #1da851;
+        --color-facebook: #1877f2;
+      }
+    </style>
+  </head>
+
+  <body class="flex min-h-dvh flex-col bg-fondo font-sans text-texto-suave antialiased">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-superficie focus:px-4 focus:py-2 focus:font-semibold focus:text-primario-texto focus:shadow-lg">
+      Saltar al contenido
+    </a>
+
+    <!-- Encabezado con pestañas, selector de paleta y modo (renderizado por main.js) -->
+    <header id="encabezado" class="sticky top-0 z-50 border-b border-borde bg-superficie/90 backdrop-blur-md"></header>
+
+    <!-- Cada vista es una "página" independiente; main.js muestra solo la activa según el hash -->
+    <main id="contenido" class="flex-1">
+      <section id="vista-inicio" data-vista="inicio" aria-labelledby="titulo-inicio"></section>
+      <section id="vista-productos" data-vista="productos" aria-labelledby="titulo-productos" hidden></section>
+      <section id="vista-contacto" data-vista="contacto" aria-labelledby="titulo-contacto" hidden></section>
+    </main>
+
+    <footer id="pie" class="border-t border-borde bg-superficie"></footer>
+
+    <!-- Barra de pestañas inferior (solo móvil) -->
+    <nav id="pestanas-movil" class="fixed inset-x-0 bottom-0 z-50 border-t border-borde bg-superficie/95 backdrop-blur-md lg:hidden" aria-label="Secciones"></nav>
+
+    <div id="whatsapp-flotante"></div>
+
+    <noscript>
+      <div style="max-width: 36rem; margin: 0 auto; padding: 1.5rem; text-align: center">
+        <p><strong>Ferretería y Tlapalería Los Arcos</strong></p>
+        <p>Vicente Guerrero 148, Centro, El Pitillal, C.P. 48290, Puerto Vallarta, Jalisco.</p>
+        <p>Tel. / WhatsApp: <a href="tel:+5213330105206">+52 1 33 3010 5206</a></p>
+      </div>
+    </noscript>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>

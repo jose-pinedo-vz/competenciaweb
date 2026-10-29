@@ -1,0 +1,172 @@
+/*
+ * Estilos complementarios a Tailwind.
+ * Solo lo que no conviene expresar con utilidades: valores iniciales de tema,
+ * patrones, animaciones y accesibilidad.
+ */
+
+/* Mismo orden de capas que Tailwind: así sus utilidades (hover, transition…) prevalecen sobre estas reglas. */
+@layer theme, base, components, utilities;
+
+@layer base {
+  /* Valores mínimos antes de que main.js aplique la paleta completa (evita destellos). */
+  :root {
+    --p-fondo: #f4f6fa;
+    --p-superficie: #ffffff;
+    --p-borde: #d7dfea;
+    --p-texto: #0d1b33;
+    --p-texto-suave: #44536b;
+    --p-primario: #1a3f8f;
+    --p-destaque: #f5b800;
+    color-scheme: light;
+  }
+
+  :root[data-modo='oscuro'] {
+    --p-fondo: #0a1120;
+    --p-superficie: #111a2d;
+    --p-borde: #24314b;
+    --p-texto: #edf1f8;
+    --p-texto-suave: #b3bfd3;
+    --p-primario: #2d5fc8;
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--p-destaque);
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+}
+
+@layer components {
+  /* ---------- Cambio de tema fluido ---------- */
+
+  /* main.js añade esta clase unos instantes al cambiar paleta o modo. */
+  .cambiando-tema *,
+  .cambiando-tema *::before,
+  .cambiando-tema *::after {
+    transition:
+      background-color 0.35s ease,
+      border-color 0.35s ease,
+      color 0.35s ease,
+      fill 0.35s ease,
+      stroke 0.35s ease !important;
+  }
+
+  /* ---------- Patrones de fondo ---------- */
+
+  .patron-industrial {
+    background-image:
+      radial-gradient(ellipse 80% 60% at 85% 10%, color-mix(in srgb, var(--p-destaque) 22%, transparent), transparent 60%),
+      radial-gradient(ellipse 70% 70% at 0% 100%, color-mix(in srgb, var(--p-primario) 45%, transparent), transparent 60%),
+      repeating-linear-gradient(135deg, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 22px);
+  }
+
+  .patron-claro {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--p-primario) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--p-primario) 8%, transparent) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /* Franja tricolor de la marca (primario · acento · destaque). */
+  .franja-marca {
+    background: linear-gradient(
+      90deg,
+      var(--p-primario) 0 33.33%,
+      var(--p-acento) 33.33% 66.66%,
+      var(--p-destaque) 66.66% 100%
+    );
+  }
+
+  /* ---------- Entrada de vistas ---------- */
+
+  .vista-entrada {
+    animation: vista-entrada 0.35s ease-out both;
+  }
+
+  @keyframes vista-entrada {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Menú de paletas ---------- */
+
+  .menu-paletas {
+    transform-origin: top right;
+    animation: menu-entrada 0.16s ease-out both;
+  }
+
+  @keyframes menu-entrada {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Botón flotante de WhatsApp ---------- */
+
+  .wa-flotante {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+
+  .wa-flotante::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: #25d366;
+    animation: wa-pulso 2.8s ease-out infinite;
+    z-index: -1;
+  }
+
+  @keyframes wa-pulso {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    70%,
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  /* Barra inferior: respeta el área segura de iPhone. */
+  .pestanas-seguras {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* ---------- Movimiento reducido ---------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    .vista-entrada,
+    .menu-paletas {
+      animation: none;
+    }
+
+    .wa-flotante::before {
+      animation: none;
+      display: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
