@@ -36,7 +36,8 @@ export const departamentos = [
       { id: 'abrasivos', nombre: 'Abrasivos', icono: 'fa-solid fa-compact-disc' },
       { id: 'adhesivos', nombre: 'Adhesivos y selladores', icono: 'fa-solid fa-flask' },
       { id: 'tornilleria', nombre: 'Tornillería y fijación', icono: 'fa-solid fa-gear' },
-      { id: 'pintura', nombre: 'Pintura e impermeabilizantes', icono: 'fa-solid fa-paint-roller' },
+      { id: 'impermeabilizantes', nombre: 'Impermeabilizantes', icono: 'fa-solid fa-umbrella' },
+      { id: 'pintura', nombre: 'Pintura y accesorios', icono: 'fa-solid fa-paint-roller' },
     ],
   },
   {
@@ -124,16 +125,36 @@ export const productos = [
   { sku: 'LA-CF-0102', nombre: 'Contacto doble polarizado con placa', marca: 'Volteck', dep: 'construccion', sub: 'electrico', precio: 45, stock: 60 },
   { sku: 'LA-CF-0103', nombre: 'Foco LED 9 W luz blanca', marca: 'Philips', dep: 'construccion', sub: 'electrico', precio: 39, stock: 120 },
   { sku: 'LA-CF-0104', nombre: 'Centro de carga de 2 polos', marca: 'Square D', dep: 'construccion', sub: 'electrico', precio: 389, stock: 0 },
+  { sku: 'LA-CF-0105', nombre: 'Cinta de aislar negra 18 m', marca: 'Volteck', dep: 'construccion', sub: 'electrico', precio: 25, stock: 100 },
+  { sku: 'LA-CF-0106', nombre: 'Apagador sencillo con placa', marca: 'Volteck', dep: 'construccion', sub: 'electrico', precio: 39, stock: 70 },
+  { sku: 'LA-CF-0107', nombre: 'Extensión eléctrica uso rudo 5 m', marca: 'Volteck', dep: 'construccion', sub: 'electrico', precio: 219, stock: 11 },
   { sku: 'LA-CF-0201', nombre: 'Disco de corte para metal 4-1/2" (5 piezas)', marca: 'Austromex', dep: 'construccion', sub: 'abrasivos', precio: 129, stock: 30 },
   { sku: 'LA-CF-0202', nombre: 'Lija de agua grano 220 (10 pliegos)', marca: 'Fandeli', dep: 'construccion', sub: 'abrasivos', precio: 85, stock: 50 },
   { sku: 'LA-CF-0301', nombre: 'Pegamento de contacto 1 L', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 189, stock: 14 },
   { sku: 'LA-CF-0302', nombre: 'Silicón transparente 280 ml', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 79, stock: 35 },
   { sku: 'LA-CF-0303', nombre: 'Cemento para PVC 250 ml', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 95, stock: 20 },
+  { sku: 'LA-CF-0304', nombre: 'Pegamento blanco multiusos 1 L', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 119, stock: 25 },
+  { sku: 'LA-CF-0305', nombre: 'Sellador acrílico para juntas 300 ml', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 69, stock: 30 },
+  { sku: 'LA-CF-0306', nombre: 'Adhesivo epóxico de 2 componentes 25 ml', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 89, stock: 16, nuevo: true },
+  { sku: 'LA-CF-0307', nombre: 'Removedor de sarro y óxido 1 L', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 99, stock: 0 },
+  { sku: 'LA-CF-0308', nombre: 'Silicón para alta temperatura, rojo, 85 g', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 75, stock: 20 },
+  { sku: 'LA-CF-0309', nombre: 'Thinner estándar 1 L', marca: 'Presto', dep: 'construccion', sub: 'adhesivos', precio: 59, stock: 40 },
   { sku: 'LA-CF-0401', nombre: 'Taquete plástico 1/4" (100 piezas)', marca: 'Fiero', dep: 'construccion', sub: 'tornilleria', precio: 49, stock: 80 },
   { sku: 'LA-CF-0402', nombre: 'Pija para tablaroca 1" (100 piezas)', marca: 'Fiero', dep: 'construccion', sub: 'tornilleria', precio: 69, stock: 45 },
-  { sku: 'LA-CF-0501', nombre: 'Impermeabilizante acrílico 5 años, 19 L', marca: 'Fester', dep: 'construccion', sub: 'pintura', precio: 1890, antes: 2150, stock: 6, promo: 'temporada' },
+  { sku: 'LA-CF-0403', nombre: 'Clavo estándar 2-1/2" (1 kg)', marca: 'Fiero', dep: 'construccion', sub: 'tornilleria', precio: 45, stock: 35 },
+  { sku: 'LA-CF-0404', nombre: 'Alambre recocido calibre 16 (1 kg)', marca: 'Fiero', dep: 'construccion', sub: 'tornilleria', precio: 55, stock: 25 },
+  { sku: 'LA-CF-0405', nombre: 'Tornillo para madera 1-1/2" (50 piezas)', marca: 'Fiero', dep: 'construccion', sub: 'tornilleria', precio: 59, stock: 0 },
+  { sku: 'LA-CF-0501', nombre: 'Impermeabilizante acrílico 5 años, 19 L', marca: 'Fester', dep: 'construccion', sub: 'impermeabilizantes', precio: 1890, antes: 2150, stock: 6, promo: 'temporada' },
   { sku: 'LA-CF-0502', nombre: 'Pintura vinílica blanca, 19 L', marca: 'Comex', dep: 'construccion', sub: 'pintura', precio: 1590, stock: 4 },
   { sku: 'LA-CF-0503', nombre: 'Brocha de cerda natural 3"', marca: 'Truper', dep: 'construccion', sub: 'pintura', precio: 59, stock: 40 },
+  { sku: 'LA-CF-0504', nombre: 'Impermeabilizante acrílico 3 años, 19 L', marca: 'Comex', dep: 'construccion', sub: 'impermeabilizantes', precio: 1390, stock: 7 },
+  { sku: 'LA-CF-0505', nombre: 'Impermeabilizante elastomérico 10 años, 19 L', marca: 'Fester', dep: 'construccion', sub: 'impermeabilizantes', precio: 2790, stock: 3, nuevo: true },
+  { sku: 'LA-CF-0506', nombre: 'Membrana de refuerzo de poliéster 1 × 100 m', marca: 'Fester', dep: 'construccion', sub: 'impermeabilizantes', precio: 1190, stock: 4 },
+  { sku: 'LA-CF-0507', nombre: 'Sellador para grietas en techo 1 L', marca: 'Sika', dep: 'construccion', sub: 'impermeabilizantes', precio: 249, stock: 10 },
+  { sku: 'LA-CF-0508', nombre: 'Primario para impermeabilizante 4 L', marca: 'Fester', dep: 'construccion', sub: 'impermeabilizantes', precio: 389, antes: 459, stock: 6, promo: 'remate' },
+  { sku: 'LA-CF-0509', nombre: 'Rodillo de felpa 9" con charola', marca: 'Truper', dep: 'construccion', sub: 'pintura', precio: 139, stock: 15 },
+  { sku: 'LA-CF-0510', nombre: 'Esmalte alquidálico negro brillante 1 L', marca: 'Comex', dep: 'construccion', sub: 'pintura', precio: 229, stock: 8 },
+  { sku: 'LA-CF-0511', nombre: 'Cinta masking 1" × 50 m', marca: 'Truper', dep: 'construccion', sub: 'pintura', precio: 39, stock: 60 },
 
   // Plomería y Grifería
   { sku: 'LA-PG-0101', nombre: 'Bomba periférica 1/2 HP', marca: 'Truper', dep: 'plomeria', sub: 'bombas', precio: 1290, stock: 4 },
@@ -143,9 +164,16 @@ export const productos = [
   { sku: 'LA-PG-0301', nombre: 'Manguera flexible para lavabo 40 cm', marca: 'Coflex', dep: 'plomeria', sub: 'conexiones', precio: 69, stock: 50 },
   { sku: 'LA-PG-0302', nombre: 'Manguera para WC 35 cm', marca: 'Fleximatic', dep: 'plomeria', sub: 'conexiones', precio: 59, stock: 38 },
   { sku: 'LA-PG-0303', nombre: 'Codo PVC 90° 1/2" (10 piezas)', marca: 'Amanco', dep: 'plomeria', sub: 'conexiones', precio: 45, stock: 60 },
+  { sku: 'LA-PG-0304', nombre: 'Conector flexible para boiler 1/2" × 60 cm', marca: 'Coflex', dep: 'plomeria', sub: 'conexiones', precio: 119, stock: 22 },
+  { sku: 'LA-PG-0305', nombre: 'Conector flexible para gas 1/2" × 1.5 m', marca: 'Fleximatic', dep: 'plomeria', sub: 'conexiones', precio: 189, stock: 14, nuevo: true },
+  { sku: 'LA-PG-0306', nombre: 'Céspol flexible para lavabo', marca: 'Coflex', dep: 'plomeria', sub: 'conexiones', precio: 99, stock: 30 },
+  { sku: 'LA-PG-0307', nombre: 'Kit de instalación para WC (manguera, cuello de cera y pijas)', marca: 'Coflex', dep: 'plomeria', sub: 'conexiones', precio: 149, stock: 18, nuevo: true },
+  { sku: 'LA-PG-0308', nombre: 'Manguera para regadera de teléfono 1.5 m', marca: 'Fleximatic', dep: 'plomeria', sub: 'conexiones', precio: 139, stock: 0 },
+  { sku: 'LA-PG-0309', nombre: 'Conector para tinaco 3/4"', marca: 'Coflex', dep: 'plomeria', sub: 'conexiones', precio: 85, antes: 109, stock: 12, promo: 'temporada' },
   { sku: 'LA-PG-0401', nombre: 'Llave de paso de esfera 1/2"', marca: 'Urrea', dep: 'plomeria', sub: 'llaves', precio: 189, stock: 15 },
   { sku: 'LA-PG-0402', nombre: 'Monomando para lavabo cromado', marca: 'Foset', dep: 'plomeria', sub: 'llaves', precio: 899, antes: 1090, stock: 3, promo: 'remate' },
   { sku: 'LA-PG-0403', nombre: 'Regadera de lluvia 8" con brazo', marca: 'Foset', dep: 'plomeria', sub: 'llaves', precio: 649, stock: 5, nuevo: true },
+  { sku: 'LA-PG-0404', nombre: 'Válvula de llenado universal para WC', marca: 'Coflex', dep: 'plomeria', sub: 'llaves', precio: 179, stock: 9 },
 
   // Cerrajería
   { sku: 'LA-CE-0101', nombre: 'Cerradura de pomo para recámara', marca: 'Phillips', dep: 'cerrajeria', sub: 'residenciales', precio: 349, stock: 12 },
@@ -172,6 +200,59 @@ export const productos = [
   { sku: 'LA-SI-0201', nombre: 'Cinta de precaución amarilla 300 m', marca: 'Pretul', dep: 'seguridad', sub: 'senalizacion', precio: 149, stock: 20 },
   { sku: 'LA-SI-0202', nombre: 'Señalamiento "Salida de emergencia" 30 × 20 cm', marca: 'Surtek', dep: 'seguridad', sub: 'senalizacion', precio: 99, stock: 14 },
 ];
+
+/**
+ * Líneas principales del negocio: accesos rápidos en la parte superior del catálogo
+ * (#productos/linea/<id>). Cada línea agrupa uno o varios [departamento, subcategoría].
+ */
+export const lineas = [
+  {
+    id: 'plomeria',
+    nombre: 'Plomería y conexiones',
+    icono: 'fa-solid fa-faucet-drip',
+    resumen: 'Coflex · Fleximatic',
+    descripcion: 'Conectores, mangueras, céspoles, llaves y bombas, con las marcas que ya conoces: Coflex y Fleximatic.',
+    incluye: [['plomeria']],
+  },
+  {
+    id: 'adhesivos',
+    nombre: 'Adhesivos y químicos',
+    icono: 'fa-solid fa-flask',
+    resumen: 'Presto',
+    descripcion: 'Pegamentos, selladores, silicones y químicos de mantenimiento Presto.',
+    incluye: [['construccion', 'adhesivos']],
+  },
+  {
+    id: 'impermeabilizantes',
+    nombre: 'Impermea\u00adbilizantes', // \u00ad: guion opcional si no cabe en la tarjeta
+    icono: 'fa-solid fa-umbrella',
+    resumen: 'Techos y muros',
+    descripcion: 'Impermeabilizantes, membranas, primarios y selladores para proteger tu casa de las lluvias de la costa.',
+    incluye: [['construccion', 'impermeabilizantes']],
+  },
+  {
+    id: 'tlapaleria',
+    nombre: 'Tlapalería general',
+    icono: 'fa-solid fa-screwdriver-wrench',
+    resumen: 'Tornillería · eléctrico · pintura',
+    descripcion: 'Lo de todos los días: tornillería, material eléctrico, pintura, abrasivos y herramienta básica.',
+    incluye: [
+      ['construccion', 'tornilleria'],
+      ['construccion', 'electrico'],
+      ['construccion', 'pintura'],
+      ['construccion', 'abrasivos'],
+      ['herramientas', 'manuales'],
+      ['herramientas', 'medicion'],
+    ],
+  },
+];
+
+export const lineaPorId = (id) => lineas.find((l) => l.id === id);
+
+export const productosDeLinea = (id) => {
+  const linea = lineaPorId(id);
+  return linea ? productos.filter((p) => linea.incluye.some(([dep, sub]) => p.dep === dep && (!sub || p.sub === sub))) : [];
+};
 
 export const departamentoPorId = (id) => departamentos.find((d) => d.id === id);
 export const productoPorSku = (sku) => productos.find((p) => p.sku === sku);

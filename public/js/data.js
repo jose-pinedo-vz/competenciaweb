@@ -45,6 +45,24 @@ export const negocio = {
     ],
   },
 
+  /**
+   * Franja de marcas de la portada. Solo se nombran las marcas que el negocio confirmó
+   * (Coflex, Fleximatic, Presto); el resto se presenta como línea de producto.
+   * `ruta` lleva al filtro correspondiente del catálogo.
+   */
+  marcas: {
+    destacadas: [
+      { nombre: 'Coflex', linea: 'Plomería y conexiones', icono: 'fa-solid fa-faucet-drip', ruta: '#productos/linea/plomeria' },
+      { nombre: 'Fleximatic', linea: 'Mangueras y conectores', icono: 'fa-solid fa-link', ruta: '#productos/linea/plomeria' },
+      { nombre: 'Presto', linea: 'Adhesivos, selladores y químicos', icono: 'fa-solid fa-flask', ruta: '#productos/linea/adhesivos' },
+    ],
+    lineas: [
+      { nombre: 'Impermea\u00adbilizantes', icono: 'fa-solid fa-umbrella', ruta: '#productos/linea/impermeabilizantes' },
+      { nombre: 'Pintura', icono: 'fa-solid fa-paint-roller', ruta: '#productos/construccion/pintura' },
+      { nombre: 'Material eléctrico', icono: 'fa-solid fa-plug', ruta: '#productos/construccion/electrico' },
+    ],
+  },
+
   contacto: {
     direccion: {
       calle: 'Vicente Guerrero 148',

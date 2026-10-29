@@ -1,6 +1,9 @@
-import { enlaceWhatsApp } from './data.js';
+import { negocio, enlaceWhatsApp } from './data.js';
 import {
   catalogoDemostracion,
+  lineas,
+  lineaPorId,
+  productosDeLinea,
   departamentos,
   departamentoPorId,
   productos,
@@ -39,6 +42,7 @@ const ORDENES = [
 ];
 
 const filtros = {
+  linea: null,
   dep: null,
   sub: null,
   marcas: new Set(),
@@ -86,7 +90,7 @@ const comparadores = {
 };
 
 function resultados() {
-  const base = productosDe(filtros.dep, filtros.sub);
+  const base = filtros.linea ? productosDeLinea(filtros.linea) : productosDe(filtros.dep, filtros.sub);
   const lista = base.filter((p) => cumple(p)).sort(comparadores[filtros.orden]);
   const conteoMarcas = new Map();
   base
@@ -95,6 +99,9 @@ function resultados() {
   filtros.marcas.forEach((m) => conteoMarcas.has(m) || conteoMarcas.set(m, 0));
   return { lista, conteoMarcas };
 }
+
+/** Marcas que el negocio destaca (franja de la portada): su insignia se resalta en las tarjetas. */
+const MARCAS_DESTACADAS = new Set(negocio.marcas.destacadas.map((m) => m.nombre));
 
 const filtrosActivos = () =>
   filtros.marcas.size + (filtros.min != null || filtros.max != null) + filtros.soloDisponibles + filtros.soloOfertas + !!filtros.busqueda;
@@ -105,7 +112,8 @@ function tarjetaProducto(p) {
   const sub = subcategoriaDe(p);
   const pct = descuento(p);
   const agotado = p.stock === 0;
-  const mensaje = `¡Hola, Los Arcos! Quisiera cotizar: ${p.nombre} (${p.marca}, SKU ${p.sku}). ¿Tienen disponibilidad?`;
+  const mensaje = `Hola Ferretería Los Arcos, me interesa cotizar: ${p.nombre} (marca ${p.marca}, SKU ${p.sku}).`;
+  const marcaDestacada = MARCAS_DESTACADAS.has(p.marca);
 
   const insignias = [
     p.nuevo && '<span class="rounded-md bg-primario px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white shadow-sm">Nuevo</span>',
@@ -132,7 +140,14 @@ function tarjetaProducto(p) {
       </div>
 
       <div class="flex flex-1 flex-col p-3 sm:p-4">
-        <p class="text-[0.68rem] font-bold uppercase tracking-wider text-texto-tenue">${p.marca}</p>
+        <p>
+          <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-wider ring-1 ${
+            marcaDestacada ? 'bg-destaque/20 text-texto ring-destaque/60' : 'bg-primario-suave text-primario-texto ring-primario/15'
+          }">
+            <i class="fa-solid ${marcaDestacada ? 'fa-star text-destaque-texto oscuro:text-destaque' : 'fa-tag'} text-[0.55rem]" aria-hidden="true"></i>
+            <span class="sr-only">Marca:</span> ${p.marca}
+          </span>
+        </p>
         <h3 class="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-texto">${p.nombre}</h3>
         <p class="mt-1 text-[0.68rem] tabular-nums text-texto-tenue">SKU ${p.sku}</p>
 
@@ -189,6 +204,11 @@ export function renderCatalogo(contenedor) {
           : ''
       }
 
+      <section aria-labelledby="titulo-lineas" class="mt-6">
+        <h2 id="titulo-lineas" class="text-xs font-bold uppercase tracking-wider text-texto-tenue">Líneas principales</h2>
+        <div id="cat-lineas" class="mt-3 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4"></div>
+      </section>
+
       <div id="cat-chips" class="lg:hidden"></div>
 
       <div class="mt-6 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">
@@ -197,7 +217,7 @@ export function renderCatalogo(contenedor) {
           <aside aria-labelledby="filtros-titulo"
                  class="panel-izquierdo absolute inset-y-0 left-0 flex w-[min(22rem,100%)] flex-col bg-superficie shadow-2xl lg:sticky lg:top-24 lg:bottom-auto lg:max-h-[calc(100dvh-7rem)] lg:w-auto lg:bg-transparent lg:shadow-none">
             <div class="flex items-center justify-between border-b border-borde px-5 py-4 lg:hidden">
-              <h2 id="filtros-titulo" class="text-lg font-extrabold text-texto">Filtros</h2>
+              <h2 id="filtros-titulo" class="text-lg font-extrabold text-texto">Departamentos y filtros</h2>
               <button type="button" data-cerrar-filtros aria-label="Cerrar filtros"
                       class="flex size-10 items-center justify-center rounded-lg text-texto-suave hover:bg-superficie-alt hover:text-texto">
                 <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
@@ -205,7 +225,7 @@ export function renderCatalogo(contenedor) {
             </div>
 
             <div class="flex-1 space-y-7 overflow-y-auto p-5 lg:p-0 lg:pr-2">
-              <section aria-labelledby="f-dep" class="hidden lg:block">
+              <section aria-labelledby="f-dep">
                 <h3 id="f-dep" class="text-xs font-bold uppercase tracking-wider text-texto-tenue">Departamentos</h3>
                 <ul id="filtro-deps" class="mt-3 space-y-0.5 text-sm"></ul>
               </section>
@@ -286,11 +306,13 @@ export function renderCatalogo(contenedor) {
 }
 
 function renderMigas() {
+  const linea = lineaPorId(filtros.linea);
   const dep = departamentoPorId(filtros.dep);
   const sub = dep?.subcategorias.find((s) => s.id === filtros.sub);
   const pasos = [
     { texto: 'Inicio', href: '#inicio' },
     { texto: 'Catálogo', href: rutaCatalogo() },
+    linea && { texto: linea.nombre, href: rutaCatalogo('linea', linea.id) },
     dep && { texto: dep.nombre, href: rutaCatalogo(dep.id) },
     sub && { texto: sub.nombre, href: rutaCatalogo(dep.id, sub.id) },
   ].filter(Boolean);
@@ -307,10 +329,12 @@ function renderMigas() {
         .join('')}
     </ol>`;
 
-  $('#titulo-productos').textContent = sub?.nombre ?? dep?.nombre ?? 'Catálogo de productos';
-  $('#cat-descripcion').textContent = sub
-    ? `${sub.nombre} del departamento de ${dep.nombre}. ¿No ves lo que buscas? Pregúntanos por WhatsApp.`
-    : (dep?.descripcion ?? 'Herramientas, ferretería, plomería, cerrajería y todo lo que necesitas para tu casa, obra o taller.');
+  $('#titulo-productos').textContent = linea?.nombre ?? sub?.nombre ?? dep?.nombre ?? 'Catálogo de productos';
+  $('#cat-descripcion').textContent = linea
+    ? linea.descripcion
+    : sub
+      ? `${sub.nombre} del departamento de ${dep.nombre}. ¿No ves lo que buscas? Pregúntanos por WhatsApp.`
+      : (dep?.descripcion ?? 'Herramientas, ferretería, plomería, cerrajería y todo lo que necesitas para tu casa, obra o taller.');
 }
 
 function renderDepartamentos() {
@@ -318,7 +342,7 @@ function renderDepartamentos() {
     `flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-colors ${activo ? 'bg-primario-suave font-bold text-primario-texto' : 'text-texto-suave hover:bg-superficie-alt hover:text-texto'}`;
 
   $('#filtro-deps').innerHTML = `
-    <li><a href="${rutaCatalogo()}" class="${enlaceDep(!filtros.dep)}">Todo el catálogo <span class="text-xs text-texto-tenue">${productos.length}</span></a></li>
+    <li><a href="${rutaCatalogo()}" class="${enlaceDep(!filtros.dep && !filtros.linea)}">Todo el catálogo <span class="text-xs text-texto-tenue">${productos.length}</span></a></li>
     ${departamentos
       .map((d) => {
         const activo = d.id === filtros.dep;
@@ -354,14 +378,33 @@ function renderDepartamentos() {
     </a>`;
   const dep = departamentoPorId(filtros.dep);
 
+  // Líneas principales: accesos rápidos (al pulsar la línea activa se vuelve al catálogo completo).
+  $('#cat-lineas').innerHTML = lineas
+    .map((l) => {
+      const activa = l.id === filtros.linea;
+      return `
+      <a href="${activa ? rutaCatalogo() : rutaCatalogo('linea', l.id)}" ${activa ? 'aria-current="page"' : ''}
+         class="group flex items-center gap-3 rounded-2xl border p-3 transition duration-300 hover:-translate-y-0.5 sm:p-4 ${
+           activa ? 'border-primario bg-primario-suave ring-1 ring-primario' : 'border-borde bg-superficie hover:border-primario/40 hover:shadow-md hover:shadow-black/5'
+         }">
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors sm:size-11 ${
+          activa ? 'bg-primario text-white' : 'bg-primario-suave text-primario-texto group-hover:bg-primario group-hover:text-white'
+        }">
+          <i class="${l.icono}" aria-hidden="true"></i>
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-sm font-bold leading-tight text-texto">${l.nombre}</span>
+          <span class="mt-0.5 block truncate text-xs text-texto-tenue">${l.resumen} · ${productosDeLinea(l.id).length}</span>
+        </span>
+        ${activa ? '<span class="sr-only">(quitar filtro)</span><span class="text-xs text-primario-texto" aria-hidden="true"><i class="fa-solid fa-xmark"></i></span>' : ''}
+      </a>`;
+    })
+    .join('');
+
   $('#cat-chips').innerHTML = `
-    <nav aria-label="Departamentos" class="carril -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
-      ${chip(rutaCatalogo(), 'Todo', !filtros.dep)}
-      ${departamentos.map((d) => chip(rutaCatalogo(d.id), d.nombre, d.id === filtros.dep, d.icono)).join('')}
-    </nav>
     ${
       dep
-        ? `<nav aria-label="Subcategorías de ${dep.nombre}" class="carril -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
+        ? `<nav aria-label="Subcategorías de ${dep.nombre}" class="carril -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6">
             ${chip(rutaCatalogo(dep.id), `Todo ${dep.nombre.split(/[ ,]/)[0].toLowerCase()}`, !filtros.sub)}
             ${dep.subcategorias.map((s) => chip(rutaCatalogo(dep.id, s.id), s.nombre, s.id === filtros.sub)).join('')}
           </nav>`
@@ -513,13 +556,16 @@ function cerrarFiltros() {
   $('#abrir-filtros').focus();
 }
 
-/** Aplica departamento/subcategoría desde la URL (#productos/dep/sub). */
-export function navegarCatalogo([depId, subId] = []) {
-  const dep = departamentoPorId(depId);
-  const sub = dep?.subcategorias.find((s) => s.id === subId);
-  const nuevoDep = dep?.id ?? null;
-  if (nuevoDep !== filtros.dep) filtros.marcas.clear();
-  filtros.dep = nuevoDep;
+/** Aplica la URL al catálogo: #productos/<dep>/<sub> o #productos/linea/<id>. */
+export function navegarCatalogo([primero, segundo] = []) {
+  const linea = primero === 'linea' ? lineaPorId(segundo) : null;
+  const dep = linea ? null : departamentoPorId(primero);
+  const sub = dep?.subcategorias.find((s) => s.id === segundo);
+  const ambito = linea ? `linea:${linea.id}` : (dep?.id ?? null);
+  // Las marcas disponibles cambian con el ámbito: se reinicia su filtro.
+  if (ambito !== (filtros.linea ? `linea:${filtros.linea}` : filtros.dep)) filtros.marcas.clear();
+  filtros.linea = linea?.id ?? null;
+  filtros.dep = dep?.id ?? null;
   filtros.sub = sub?.id ?? null;
   reiniciarPaginacion();
   actualizar();

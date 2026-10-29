@@ -97,8 +97,16 @@ function renderEncabezado() {
 
   $('#encabezado').innerHTML = `
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:h-[4.5rem] lg:px-8">
-      <a href="#inicio" class="shrink-0 rounded-lg bg-white px-2 py-1 ring-1 ring-borde" aria-label="${negocio.nombre}, ir al inicio">
-        ${logotipo('w-24 sm:w-28 lg:w-32')}
+      <a href="#inicio" class="group flex shrink-0 items-center gap-3" aria-label="${negocio.nombre}, ir al inicio">
+        <span class="logo-insignia rounded-xl bg-white px-1.5 py-1 shadow-sm ring-2 ring-primario/70 ring-offset-2 ring-offset-superficie transition group-hover:ring-primario">
+          ${logotipo('w-22 sm:w-26 lg:w-28')}
+        </span>
+        <span class="hidden border-l border-borde pl-3 leading-tight xl:block" aria-hidden="true">
+          <span class="flex items-center gap-1 text-[0.62rem] font-extrabold uppercase tracking-[0.16em] text-acento-texto">
+            <i class="fa-solid fa-award"></i> Desde ${negocio.anioFundacion}
+          </span>
+          <span class="mt-0.5 block text-xs font-semibold text-texto-tenue">El Pitillal, Pto. Vallarta</span>
+        </span>
       </a>
 
       <nav class="hidden items-center gap-1 rounded-xl bg-superficie-alt p-1 lg:flex" aria-label="Secciones">${pestanas}</nav>
@@ -162,6 +170,43 @@ function renderPestanasMovil() {
 
 /* ---------- Vista: Inicio ---------- */
 
+/** Franja de marcas y líneas que maneja la tienda (debajo del hero). */
+function renderFranjaMarcas() {
+  const { destacadas, lineas } = negocio.marcas;
+  const tarjeta = ({ ruta, icono, etiqueta, nombre, detalle, destacada }) => `
+    <li class="w-44 shrink-0 lg:w-auto">
+      <a href="${ruta}"
+         class="group flex h-full flex-col gap-3 rounded-2xl border border-borde bg-fondo p-4 transition duration-300 hover:-translate-y-1 hover:border-primario/50 hover:bg-superficie hover:shadow-lg hover:shadow-black/5">
+        <span class="flex items-center justify-between gap-2">
+          <span class="flex size-9 items-center justify-center rounded-lg transition-colors ${
+            destacada ? 'bg-primario text-white' : 'bg-primario-suave text-primario-texto group-hover:bg-primario group-hover:text-white'
+          }">
+            <i class="${icono}" aria-hidden="true"></i>
+          </span>
+          <span class="rounded-full px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider ring-1 ${
+            destacada ? 'bg-destaque/20 text-texto ring-destaque/60' : 'bg-superficie-alt text-texto-tenue ring-borde'
+          }">${etiqueta}</span>
+        </span>
+        <span class="${destacada ? 'text-xl' : 'text-sm leading-tight'} font-extrabold tracking-tight text-texto">${nombre}</span>
+        <span class="-mt-2 text-xs leading-snug text-texto-tenue">${detalle}</span>
+      </a>
+    </li>`;
+
+  return `
+    <section aria-labelledby="titulo-marcas" class="border-b border-borde bg-superficie">
+      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:flex lg:items-center lg:gap-10 lg:px-8">
+        <div class="lg:w-56 lg:shrink-0">
+          <p class="text-xs font-bold uppercase tracking-[0.2em] text-acento-texto">Marcas que manejamos</p>
+          <h2 id="titulo-marcas" class="mt-1.5 text-lg font-extrabold leading-snug text-balance text-texto">Calidad que ya conoces, en tu tlapalería de siempre</h2>
+        </div>
+        <ul class="carril -mx-4 mt-5 flex gap-3 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:px-6 lg:mx-0 lg:mt-0 lg:grid lg:flex-1 lg:grid-cols-6 lg:overflow-visible lg:p-0">
+          ${destacadas.map((m) => tarjeta({ ...m, etiqueta: 'Marca', detalle: m.linea, destacada: true })).join('')}
+          ${lineas.map((l) => tarjeta({ ...l, etiqueta: 'Línea', detalle: 'Marcas líderes del mercado', destacada: false })).join('')}
+        </ul>
+      </div>
+    </section>`;
+}
+
 function renderInicio() {
   const { historia } = negocio;
   const datos = [
@@ -177,7 +222,7 @@ function renderInicio() {
       <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:py-20">
         <div class="lg:col-span-7">
           <p class="inline-flex items-center gap-2 rounded-full border border-destaque/30 bg-destaque/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-destaque">
-            <i class="fa-solid fa-award" aria-hidden="true"></i> Desde ${negocio.anioFundacion} en El Pitillal
+            <i class="fa-solid fa-store" aria-hidden="true"></i> Ferretería y tlapalería · El Pitillal
           </p>
 
           <h1 id="titulo-inicio" tabindex="-1" class="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight text-balance text-hero-texto focus:outline-none sm:text-5xl lg:text-6xl">
@@ -201,14 +246,35 @@ function renderInicio() {
           </div>
         </div>
 
-        <div class="order-first mx-auto w-full max-w-xs sm:max-w-sm lg:order-none lg:col-span-5 lg:max-w-none">
-          <div class="rounded-3xl bg-white p-4 shadow-2xl shadow-black/30 ring-1 ring-black/5 sm:p-6">
-            ${logotipo('w-full')}
-          </div>
+        <div class="order-first mx-auto w-full max-w-xs pb-4 pt-4 sm:max-w-sm lg:order-none lg:col-span-5 lg:max-w-md lg:py-0">
+          <figure class="relative isolate">
+            <div class="absolute -inset-6 -z-10 rounded-[3rem] bg-destaque/25 blur-3xl" aria-hidden="true"></div>
+
+            <div class="sello-logo rounded-[2rem] bg-white p-2 shadow-2xl shadow-black/40 ring-4 ring-primario ring-offset-4 ring-offset-hero-fondo">
+              <div class="rounded-[1.6rem] border border-slate-200 px-4 pb-4 pt-8 sm:px-6">
+                ${logotipo('w-full')}
+                <figcaption class="mt-4 flex items-center justify-center gap-2 border-t border-slate-200 pt-3 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  <i class="fa-solid fa-store text-primario" aria-hidden="true"></i> Negocio local<span class="hidden sm:inline"> · Familia Navarro</span>
+                </figcaption>
+              </div>
+            </div>
+
+            <span class="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-destaque px-4 py-1.5 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-destaque-texto shadow-lg ring-2 ring-white">
+              <i class="fa-solid fa-award" aria-hidden="true"></i> Tradición familiar
+            </span>
+
+            <span class="sello-anio absolute -bottom-5 -right-2 flex size-[4.5rem] -rotate-12 flex-col items-center justify-center rounded-full bg-primario text-white shadow-xl ring-4 ring-white sm:-right-5 sm:size-24" aria-hidden="true">
+              <span class="text-[0.55rem] font-bold uppercase tracking-[0.2em] text-white/80">Desde</span>
+              <span class="text-xl font-extrabold leading-none sm:text-2xl">${negocio.anioFundacion}</span>
+              <span class="mt-0.5 text-[0.5rem] font-bold uppercase tracking-[0.18em] text-white/80">+${decadas} años</span>
+            </span>
+          </figure>
         </div>
       </div>
       <div class="franja-marca h-1.5" aria-hidden="true"></div>
     </div>
+
+    ${renderFranjaMarcas()}
 
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       <dl class="grid grid-cols-3 gap-3 sm:gap-5">

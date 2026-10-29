@@ -152,6 +152,48 @@
     }
   }
 
+  /* ---------- Insignia del logotipo (hero) ---------- */
+
+  /* Destello diagonal que recorre la tarjeta al pasar el cursor. */
+  .sello-logo {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.4s ease;
+  }
+
+  .sello-logo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.65) 50%, transparent 65%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  .sello-logo:hover {
+    transform: translateY(-3px);
+  }
+
+  .sello-logo:hover::after {
+    transform: translateX(120%);
+    transition: transform 0.9s ease;
+  }
+
+  /* Sello circular "Desde 1984": flota levemente. */
+  .sello-anio {
+    animation: sello-flotar 5s ease-in-out infinite;
+  }
+
+  @keyframes sello-flotar {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -5px;
+    }
+  }
+
   /* ---------- Catálogo: mega-menú, paneles y avisos ---------- */
 
   .mega-entrada:not([hidden]) {
@@ -236,11 +278,17 @@
   /* ---------- Movimiento reducido ---------- */
 
   @media (prefers-reduced-motion: reduce) {
+    .sello-logo:hover,
+    .sello-logo:hover::after {
+      transform: none;
+    }
+
     .vista-entrada,
     .menu-paletas,
     .punto-vivo,
     .widget-entrada:not([hidden]),
     .mega-entrada:not([hidden]),
+    .sello-anio,
     .aviso-entrada:not([hidden]),
     .panel-lateral,
     .panel-izquierdo {
