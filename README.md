@@ -43,7 +43,9 @@ Para cambiar textos, teléfono, dirección o productos, edita únicamente `publi
 - **Rutas:** `#productos`, `#productos/herramientas`, `#productos/herramientas/electricas`… Se pueden compartir y funcionan con *Atrás*.
 - **Mega-menú (escritorio):** se abre al pasar el cursor sobre *Productos* o con la flecha junto a la pestaña; se cierra con Esc o al hacer clic fuera.
 - **Filtros:** marca, rango de precio, solo disponibles, solo ofertas, búsqueda por nombre/marca/SKU y orden. En móvil se abren en un panel lateral con el botón *Filtros*.
-- **Carrito:** se guarda en `localStorage` (`arcos-carrito`). Como el sitio es estático, el pedido se envía por WhatsApp con la lista y el total para que la tienda lo confirme.
+- **Carrito:** se guarda en `localStorage` (`arcos-carrito`). Se puede cerrar el pedido de dos formas:
+  - **WhatsApp:** envía la lista y el total; se paga en tienda o contra entrega.
+  - **Tarjeta (modo demostración):** abre `public/js/pago.js` con entrega, datos de la tarjeta y resumen. **No se realiza ningún cargo.** Tarjeta de prueba aprobada: `4242 4242 4242 4242`; rechazada: `4000 0000 0000 0002` (cualquier fecha futura y CVV). Los pedidos simulados se guardan en `arcos-pedidos` solo con la marca y los últimos 4 dígitos. Para desactivarlo: `negocio.pago.habilitado = false` en `data.js`.
 - ⚠ **Los productos, precios y existencias son de demostración** (`catalogoDemostracion = true` muestra un aviso en el catálogo). Sustitúyelos por el inventario real y pon `catalogoDemostracion` en `false`.
 - **Imágenes:** agrega `imagen: 'img/productos/<archivo>'` a cada producto; mientras no exista, se muestra el ícono de la subcategoría.
 

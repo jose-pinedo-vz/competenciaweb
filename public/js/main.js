@@ -4,7 +4,8 @@ import { estadoNegocio, rangoHorario } from './horario.js';
 import { iniciarValoracion } from './valoracion.js';
 import { departamentos, productosDe } from './catalogo.js';
 import { renderCatalogo, iniciarCatalogo, navegarCatalogo, renderMegaMenu, iniciarMegaMenu } from './tienda.js';
-import { iniciarCarrito, alCambiar } from './carrito.js';
+import { iniciarCarrito, alCambiar, vaciarCarrito, abrirCarrito } from './carrito.js';
+import { iniciarPago } from './pago.js';
 
 const $ = (selector, raiz = document) => raiz.querySelector(selector);
 const $$ = (selector, raiz = document) => [...raiz.querySelectorAll(selector)];
@@ -808,6 +809,8 @@ function iniciar() {
   iniciarSelectorPaleta();
   iniciarModo();
   iniciarCarrito($('#carrito-contenedor'));
+  // Pago con tarjeta (demo): al aprobarse se vacía el carrito; al cancelar se regresa a él.
+  iniciarPago($('#pago-contenedor'), () => vaciarCarrito(), () => abrirCarrito());
   alCambiar((piezas) => {
     const contador = $('[data-contador-carrito]');
     contador.textContent = piezas > 99 ? '99+' : piezas;

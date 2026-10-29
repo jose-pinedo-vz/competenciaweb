@@ -1,10 +1,11 @@
-import { enlaceWhatsApp } from './data.js';
+import { negocio, enlaceWhatsApp } from './data.js';
 import { almacen } from './almacen.js';
 import { productoPorSku, subcategoriaDe, precioMXN } from './catalogo.js';
+import { mostrarFormularioPago } from './pago.js';
 
 /*
- * Carrito de compras. El sitio es estático (sin pasarela de pago), así que el pedido
- * se envía por WhatsApp con la lista de productos y el total para que la tienda lo confirme.
+ * Carrito de compras. El pedido se cierra por WhatsApp (pago en tienda o contra entrega)
+ * o con tarjeta mediante pago.js, que por ahora funciona en modo demostración.
  */
 
 const CLAVE = 'arcos-carrito';
@@ -14,6 +15,10 @@ const $ = (selector, raiz = document) => raiz.querySelector(selector);
 const lineas = new Map();
 const suscriptores = new Set();
 let opener = null;
+
+/** Método de pago elegido en el panel: 'whatsapp' | 'tarjeta'. */
+const pagoConTarjeta = negocio.pago.habilitado && negocio.pago.metodos.includes('tarjeta');
+let metodoPago = 'whatsapp';
 
 function cargar() {
   try {
@@ -34,7 +39,7 @@ function guardarYAvisar() {
 }
 
 export const totalPiezas = () => [...lineas.values()].reduce((a, b) => a + b, 0);
-const totalImporte = () => [...lineas].reduce((suma, [sku, n]) => suma + productoPorSku(sku).precio * n, 0);
+const totalImporte = () => Math.round([...lineas].reduce((suma, [sku, n]) => suma + productoPorSku(sku).precio * n, 0) * 100) / 100;
 export const alCambiar = (fn) => (suscriptores.add(fn), fn(totalPiezas()));
 
 export function agregar(sku) {
@@ -49,6 +54,23 @@ export function agregar(sku) {
   guardarYAvisar();
   mostrarAviso(`${producto.nombre} se agregó al carrito.`, 'fa-solid fa-cart-shopping', true);
   return true;
+}
+
+/** Resumen del pedido para el módulo de pago (sin exponer el estado interno del carrito). */
+export const resumenCarrito = () => ({
+  piezas: totalPiezas(),
+  subtotal: totalImporte(),
+  lineas: [...lineas].map(([sku, cantidad]) => {
+    const p = productoPorSku(sku);
+    return { sku, nombre: p.nombre, marca: p.marca, cantidad, precio: p.precio, importe: Math.round(p.precio * cantidad * 100) / 100 };
+  }),
+});
+
+/** Vacía el carrito (se usa al aprobarse un pago con tarjeta). */
+export function vaciarCarrito() {
+  lineas.clear();
+  metodoPago = 'whatsapp';
+  guardarYAvisar();
 }
 
 function cambiar(sku, delta) {
@@ -70,6 +92,7 @@ function mensajePedido() {
     ...renglones,
     '',
     `Total aproximado: ${precioMXN(totalImporte())} (IVA incluido)`,
+    'Forma de pago: en tienda o contra entrega.',
     '¿Me confirman disponibilidad y precio final? Gracias.',
   ].join('\n');
 }
@@ -152,14 +175,39 @@ function renderPanel() {
         <span class="font-semibold text-texto">Total</span>
         <span class="text-xl font-extrabold tabular-nums text-texto">${precioMXN(totalImporte())}</span>
       </div>
-      <p class="text-xs text-texto-tenue">Precios con IVA incluido. La tienda confirma existencias y precio final por WhatsApp.</p>
-      <a href="${enlaceWhatsApp(mensajePedido())}" target="_blank" rel="noopener noreferrer"
-         class="flex w-full items-center justify-center gap-2 rounded-xl bg-whatsapp px-5 py-3.5 font-bold text-white transition-colors hover:bg-whatsapp-hover">
-        <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i> Enviar pedido por WhatsApp
-      </a>
+      ${pagoConTarjeta ? selectorMetodoPago() : ''}
+      ${
+        metodoPago === 'tarjeta'
+          ? `<p class="text-xs text-texto-tenue">Precios con IVA incluido. Elige la entrega y paga en el siguiente paso.</p>
+             <button type="button" data-pagar-tarjeta
+                     class="flex w-full items-center justify-center gap-2 rounded-xl bg-primario px-5 py-3.5 font-bold text-white transition-colors hover:bg-primario-hover">
+               <i class="fa-solid fa-lock" aria-hidden="true"></i> Continuar al pago
+             </button>`
+          : `<p class="text-xs text-texto-tenue">Precios con IVA incluido. Pagas en tienda o contra entrega; la tienda confirma existencias y precio final por WhatsApp.</p>
+             <a href="${enlaceWhatsApp(mensajePedido())}" target="_blank" rel="noopener noreferrer"
+                class="flex w-full items-center justify-center gap-2 rounded-xl bg-whatsapp px-5 py-3.5 font-bold text-white transition-colors hover:bg-whatsapp-hover">
+               <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i> Enviar pedido por WhatsApp
+             </a>`
+      }
       <button type="button" data-vaciar class="w-full py-1 text-xs font-semibold text-texto-tenue transition-colors hover:text-acento-texto">
         Vaciar carrito
       </button>
+    </div>`;
+}
+
+/** Botones para alternar el método de pago (grupo de opciones accesible). */
+function selectorMetodoPago() {
+  const opcion = (id, icono, texto) => `
+    <button type="button" data-metodo="${id}" aria-pressed="${metodoPago === id}"
+            class="metodo-pago-boton flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-bold transition-colors ${
+              metodoPago === id ? 'metodo-pago-activo bg-superficie text-texto shadow-sm' : 'text-texto-suave hover:text-texto'
+            }">
+      <i class="${icono}" aria-hidden="true"></i> ${texto}
+    </button>`;
+  return `
+    <div role="group" aria-label="Método de pago" class="flex gap-1 rounded-xl bg-superficie-alt p-1 ring-1 ring-borde">
+      ${opcion('whatsapp', 'fa-brands fa-whatsapp', 'WhatsApp')}
+      ${opcion('tarjeta', 'fa-solid fa-credit-card', 'Tarjeta')}
     </div>`;
 }
 
@@ -170,11 +218,11 @@ export function abrirCarrito() {
   $('#carrito button[data-cerrar-carrito]').focus();
 }
 
-function cerrarCarrito() {
+function cerrarCarrito({ devolverFoco = true } = {}) {
   if ($('#carrito').hidden) return;
   $('#carrito').hidden = true;
   document.body.classList.remove('overflow-hidden');
-  opener?.focus?.();
+  if (devolverFoco) opener?.focus?.();
 }
 
 export function iniciarCarrito(contenedor) {
@@ -209,6 +257,18 @@ export function iniciarCarrito(contenedor) {
       cambiar(sku, Number(cantidad));
       // El panel se vuelve a dibujar: se devuelve el foco al mismo botón (o al de cerrar si la línea desapareció).
       ($(`#carrito button[data-sku="${sku}"][data-cantidad="${cantidad}"]:not(:disabled)`) ?? $('#carrito button[data-cerrar-carrito]')).focus();
+      return;
+    }
+    const botonMetodo = e.target.closest('[data-metodo]');
+    if (botonMetodo) {
+      metodoPago = botonMetodo.dataset.metodo;
+      renderPanel();
+      $(`#carrito [data-metodo="${metodoPago}"]`).focus();
+      return;
+    }
+    if (e.target.closest('[data-pagar-tarjeta]')) {
+      cerrarCarrito({ devolverFoco: false });
+      mostrarFormularioPago(resumenCarrito());
       return;
     }
     if (e.target.closest('[data-vaciar]')) {

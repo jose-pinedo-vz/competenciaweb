@@ -115,6 +115,39 @@ export const negocio = {
       '¡Hola, Los Arcos! Quisiera cotizar el siguiente material:\n\n- \n\n¿Me pueden apoyar con precio y disponibilidad? Gracias.',
   },
 
+  /**
+   * Pago en línea (public/js/pago.js).
+   * ⚠ `procesador: 'demo'` SIMULA el cobro: no se hace ningún cargo y el pedido no llega a la tienda.
+   * Para cobrar de verdad hay que integrar un procesador (Stripe, Mercado Pago, Clip) con su SDK oficial.
+   * Los costos y zonas de envío son de ejemplo: confírmalos con el negocio antes de publicar.
+   */
+  pago: {
+    habilitado: true, // false oculta el pago con tarjeta y deja solo WhatsApp
+    metodos: ['whatsapp', 'tarjeta'],
+    procesador: 'demo',
+    configuracion: {
+      public_key: '', // clave pública del procesador real (nunca la secreta)
+      moneda: 'MXN',
+      impuesto: 0.16, // IVA: los precios del catálogo ya lo incluyen; se usa para mostrar el desglose
+    },
+    // Tarjetas de prueba del modo demo (mismo criterio que Stripe): cualquier otra tarjeta válida se aprueba.
+    simulacion: {
+      tarjetaAprobada: '4242424242424242',
+      tarjetaRechazada: '4000000000000002',
+      demoraMs: 2200,
+    },
+    envio: {
+      disponible: true,
+      costo: 150, // costo base (zonas no listadas)
+      gratisMinimo: 1000, // envío gratis si el pedido supera este monto
+      zonas: [
+        { nombre: 'El Pitillal', costo: 0 },
+        { nombre: 'Puerto Vallarta', costo: 100 },
+        { nombre: 'Zona turística', costo: 200 },
+      ],
+    },
+  },
+
   /** Vistas (pestañas) del sitio. El id es también el hash de la URL: #inicio, #productos, #contacto. */
   vistas: [
     { id: 'inicio', etiqueta: 'Inicio', icono: 'fa-solid fa-house', titulo: 'Inicio' },

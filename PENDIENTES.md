@@ -33,7 +33,13 @@ Elementos opcionales para futuras versiones del sitio.
 - [ ] `robots.txt`, `sitemap.xml` y URL canónica.
 - [ ] Aviso de privacidad.
 - [ ] Inventario en línea (hoja de cálculo o API) para que existencias y precios se actualicen sin editar código.
-- [ ] Pago en línea (Mercado Pago, Stripe, Clip…) si se quiere cobrar desde el sitio; hoy el pedido se cierra por WhatsApp.
+- [ ] **Pago con tarjeta real:** hoy `negocio.pago.procesador = 'demo'` solo simula el cobro. Para cobrar de verdad:
+  1. Crear una cuenta en un procesador (Stripe, Mercado Pago o Clip).
+  2. Usar su SDK o formulario oficial, que captura la tarjeta en sus servidores; nunca enviar el número de tarjeta a un servidor propio.
+  3. Montar un backend mínimo (función serverless) que cree el cobro con la clave secreta.
+  4. Publicar con HTTPS.
+  Mientras siga en demo, se puede ocultar con `pago.habilitado = false`.
+- [ ] Confirmar con el negocio si hay **envío a domicilio** y sus costos reales. Los valores actuales de `negocio.pago.envio` (zonas, $100/$200, gratis desde $1,000) vienen del prompt de pago y son de ejemplo.
 - [ ] Guardar las valoraciones en un servicio real (formulario, Google Business o Facebook) en lugar de solo en el navegador.
 
 ---
@@ -101,3 +107,65 @@ Elementos opcionales para futuras versiones del sitio.
 - `node --check` sin errores en todos los módulos.
 - Las 6 imágenes existen y cargan (incluida `Sin título.jpg`); cada foto corresponde a su producto.
 - 15 de 15 pruebas en Firefox: destacados primero, filtros de marca Coflex/Fleximatic, rango de precio, subcategoría Llaves, Outlet, búsqueda por descripción, carrito y pedido por WhatsApp. 0 errores en consola y ningún 404.
+
+### 2026-10-29 — Módulo de pago con tarjeta (modo demostración)
+
+Implementado según `PROMPT_CLAUDE_AI_PAGO_TARJETA.md`. Antes se revisó el `git pull`: solo trajo el prompt y `.gitignore` (ignora `.andromity/`), sin conflictos con el trabajo previo. El merge lo cerró el usuario con el commit `91a3e60`.
+
+**Cambios**
+
+1. **Nuevo módulo `public/js/pago.js`.**
+   - Exporta `iniciarPago(contenedor, onPagoExitoso, onPagoCancelado)`, `mostrarFormularioPago(resumen)`, `ocultarFormularioPago()`, `estadoFormularioPago()` y `obtenerHistorial()`.
+   - Ventana modal: hoja inferior en móvil, cuadro centrado en escritorio. Atrapa el foco, se cierra con Esc (salvo mientras procesa) y bloquea el desplazamiento del fondo.
+   - **Entrega:** recoger en tienda o envío a domicilio, con zona y dirección obligatoria y costo de envío calculado (gratis desde el mínimo).
+   - **Tarjeta:**
+     - Formateo automático (grupos de 4; Amex 4-6-5) y fecha MM/AA.
+     - Detecta Visa, Mastercard y Amex y ajusta el CVV a 3 o 4 dígitos.
+     - Valida con Luhn, vencimiento y nombre; los errores se muestran en tiempo real con `aria-invalid` y `aria-describedby`.
+     - Vista previa de la tarjeta con los colores de la paleta activa.
+   - **Resumen:** subtotal, envío, total y desglose del IVA incluido (16%).
+   - **Simulación:** spinner de 2.2 s con `aria-busy` y anuncio en vivo.
+     - 4242 4242 4242 4242 se aprueba y 4000 0000 0000 0002 se rechaza.
+     - El botón "Usar tarjeta de prueba" autocompleta los datos.
+   - **Al aprobarse:**
+     - Se genera la referencia `LA-AAAAMMDD-XXXXX` y un ID de transacción `demo_…`.
+     - El pedido se guarda en `arcos-pedidos`: máximo 50, solo marca y últimos 4 dígitos.
+     - Se muestra la confirmación y la opción de enviar el resumen por WhatsApp, que aclara que el pago fue de demostración.
+   - **Al rechazarse:** se muestra el error, se borra el CVV, el carrito queda intacto y se puede volver al carrito para pedir por WhatsApp.
+2. **`public/js/carrito.js` (ediciones puntuales).**
+   - Selector *WhatsApp / Tarjeta* en el pie del panel (`aria-pressed`). Con "Tarjeta", el botón "Continuar al pago" abre `pago.js`.
+   - Nuevos exports `resumenCarrito()` y `vaciarCarrito()`. El total se redondea a centavos.
+   - El mensaje de WhatsApp ahora incluye "Forma de pago: en tienda o contra entrega".
+3. **`public/js/data.js`.** Nuevo `negocio.pago`: `habilitado`, `metodos`, `procesador: 'demo'`, `configuracion`, `simulacion` (tarjetas de prueba) y `envio`.
+4. **`public/css/styles.css`.** `.ventana-pago`, `.tarjeta-preview`, `.metodo-pago-activo`, `.spinner-pago` y `.formulario-pago`. La animación de entrada se desactiva con movimiento reducido.
+5. **`public/js/main.js`.** `iniciarPago(...)`: al aprobarse vacía el carrito y al cancelar reabre el carrito.
+6. **`public/index.html`.** Contenedor `#pago-contenedor`.
+
+**Diferencias con el prompt, y por qué**
+
+- **Resultado fijo en lugar de "90% de éxito al azar":** con tarjetas de prueba, la demostración ante el jurado nunca falla por casualidad y el rechazo se puede probar a voluntad.
+- **Ventana propia en lugar de un formulario dentro del panel del carrito:** el panel lateral es angosto en móvil. Al cancelar se regresa al carrito, así que la experiencia es la misma.
+- **Inicialización:** el ejemplo de `main.js` del prompt usaba `lineas` y `guardarYAvisar()`, que son internos de `carrito.js`. Se resolvió con el export `vaciarCarrito()`.
+- **Avisos visibles de "Modo demostración / No uses una tarjeta real"** en el formulario, en la confirmación y en el mensaje de WhatsApp. Así un cliente real no cree que pagó.
+
+**Archivos modificados**
+
+| Archivo | Cambio |
+|---|---|
+| `public/js/pago.js` | Nuevo: módulo de pago (demo) |
+| `public/js/carrito.js` | Selector de método, `resumenCarrito()`, `vaciarCarrito()` y forma de pago en WhatsApp |
+| `public/js/data.js` | Configuración `negocio.pago` |
+| `public/css/styles.css` | Estilos de la ventana, vista previa, método activo y spinner |
+| `public/js/main.js` | Inicialización con callbacks |
+| `public/index.html` | Contenedor `#pago-contenedor` |
+| `README.md`, `PENDIENTES.md` | Documentación |
+
+**Verificación**
+
+- `node --check` sin errores en los 9 módulos.
+- 33 de 33 pruebas del flujo de pago en Firefox headless, a 1440 px y a 390 px:
+  - Carrito vacío, cambio de método, validaciones (Luhn, vencida, CVV, Amex) y envío por zonas.
+  - Rechazo, cancelación, Esc durante el proceso, aprobación, carrito vaciado e historial.
+  - Que ningún número completo ni CVV quede en el almacenamiento, y WhatsApp con referencia.
+- Pruebas anteriores sin cambios: catálogo con productos reales 15 de 15; contacto y valoración 17 de 17. 0 errores en consola.
+- Capturas revisadas: carrito con selector (móvil), ventana de pago (escritorio claro y móvil oscuro). En móvil se corrigió un desbordamiento horizontal (`min-w-0` en la cuadrícula y en los `fieldset`).

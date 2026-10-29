@@ -242,6 +242,61 @@
     display: none;
   }
 
+  /* ---------- Pago con tarjeta (pago.js) ---------- */
+
+  .ventana-pago {
+    animation: ventana-pago 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  @keyframes ventana-pago {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
+  /* Las áreas táctiles del formulario no bajan de 44 px en móvil. */
+  .formulario-pago .opcion-entrega {
+    min-height: 44px;
+  }
+
+  /* Vista previa de la tarjeta: proporción real ISO/IEC 7810 (85.6 × 54 mm) y colores de la paleta activa. */
+  .tarjeta-preview {
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 1.586;
+    padding: 1.1rem 1.25rem;
+    border-radius: 1rem;
+    color: #fff;
+    background:
+      radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--p-destaque) 35%, transparent), transparent 45%),
+      linear-gradient(135deg, var(--p-primario), var(--p-hero-fondo));
+    box-shadow: 0 18px 35px -15px rgb(0 0 0 / 0.55);
+  }
+
+  /* Indicador del método de pago seleccionado en el carrito. */
+  .metodo-pago-activo {
+    box-shadow:
+      inset 0 0 0 1px var(--p-borde),
+      0 1px 2px rgb(0 0 0 / 0.08);
+  }
+
+  .spinner-pago {
+    display: inline-block;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2.5px solid rgb(255 255 255 / 0.35);
+    border-top-color: #fff;
+    border-radius: 9999px;
+    animation: spinner-pago 0.8s linear infinite;
+  }
+
+  @keyframes spinner-pago {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
   /* ---------- Botón flotante de WhatsApp ---------- */
 
   .wa-flotante {
@@ -291,7 +346,8 @@
     .sello-anio,
     .aviso-entrada:not([hidden]),
     .panel-lateral,
-    .panel-izquierdo {
+    .panel-izquierdo,
+    .ventana-pago {
       animation: none !important;
     }
 
