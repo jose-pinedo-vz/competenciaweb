@@ -106,8 +106,8 @@ export const negocio = {
     },
     telefono: '322 224 5833',
     telefonoHref: 'tel:+523222245833',
-    whatsapp: '5213330105206',
-    whatsappTexto: '+52 1 33 3010 5206',
+    whatsapp: '523222245833', // enlaces wa.me (52 = México + 10 dígitos)
+    whatsappTexto: '322 224 5833',
     facebook: 'https://www.facebook.com/losarcostlapaleria?locale=es_LA',
     /**
      * Coordenadas del local para el marcador del mapa (OpenStreetMap).

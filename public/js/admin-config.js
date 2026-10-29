@@ -238,7 +238,7 @@ const SECCION = {
         <fieldset class="mt-6 grid gap-4 sm:grid-cols-2">
           <legend class="mb-3 text-sm font-extrabold uppercase tracking-wider text-texto-tenue">Teléfono y redes</legend>
           ${campo({ nombre: 'telefono', etiqueta: 'Teléfono (llamadas)', valor: c.telefono, requerido: true, tipo: 'tel', ayuda: '10 dígitos, p. ej. 322 224 5833.' })}
-          ${campo({ nombre: 'whatsapp', etiqueta: 'WhatsApp (solo dígitos, con lada de país)', valor: c.whatsapp, requerido: true, tipo: 'tel', ayuda: 'Para los enlaces wa.me, p. ej. 5213330105206.' })}
+          ${campo({ nombre: 'whatsapp', etiqueta: 'WhatsApp (solo dígitos, con lada de país)', valor: c.whatsapp, requerido: true, tipo: 'tel', ayuda: 'Para los enlaces wa.me, p. ej. 523222245833.' })}
           ${campo({ nombre: 'whatsappTexto', etiqueta: 'WhatsApp como se muestra', valor: c.whatsappTexto, requerido: true, max: 25 })}
           ${campo({ nombre: 'facebook', etiqueta: 'Página de Facebook', valor: c.facebook, tipo: 'url', omitido: omit.has('facebook'), ayuda: 'Dirección completa que empiece con https://' })}
         </fieldset>

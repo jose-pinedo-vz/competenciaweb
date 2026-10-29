@@ -6,7 +6,7 @@ Elementos opcionales para futuras versiones del sitio.
 
 - [ ] Misión y visión formales de la empresa.
 - [ ] **Coordenadas exactas del local** en `negocio.contacto.coordenadas` (y `verificadas: true`) para mostrar el marcador en el mapa. OpenStreetMap no ubica el número 148 de Vicente Guerrero en El Pitillal Centro.
-- [ ] Confirmar qué número es fijo y cuál es WhatsApp: el sitio muestra el 322 224 5833 para llamadas y el +52 1 33 3010 5206 para WhatsApp.
+- [x] Número oficial único para llamadas y WhatsApp: 322 224 5833 (`wa.me/523222245833`). Confirmado por el usuario el 2026-10-29.
 - [ ] Horarios en días festivos.
 - [ ] Fotografías reales de la fachada, el mostrador y la familia que atiende el negocio (guardar en `public/img/`).
 - [ ] Elegir la paleta definitiva (o conservar el selector) y fijarla como predeterminada en `data.js`.
@@ -454,3 +454,36 @@ A pedido del usuario, en lugar del visualizador ligado a productos de `PROMPT_CL
   - 0 errores en consola.
 - Pruebas anteriores: admin 46 de 46, galería 21 de 21, pago 33 de 33, contacto 17 de 17, catálogo 14 de 15 (la conocida del texto antiguo del aviso).
 - Capturas revisadas: escritorio claro, móvil Moderno oscuro (dormitorio) y encabezado a 1024, 1440 y 1600 px.
+
+### 2026-10-29 — Íconos en el menú principal (pestaña "Colores")
+
+**Cambio:** en `public/js/main.js` (`renderEncabezado()`), las pestañas del menú de escritorio muestran el ícono de su vista, el mismo de la barra móvil: Inicio `fa-house`, Productos `fa-boxes-stacked`, **Colores `fa-palette`** y Contacto `fa-location-dot`.
+- El ícono de Colores lleva el color de acento de la paleta (`text-acento-texto`) para que destaque; los demás van al 70% de opacidad.
+- El relleno horizontal pasa a `px-3` (`px-4` desde `xl`) para compensar el ancho de los íconos.
+- En móvil y tableta, "Colores" ya estaba en la barra inferior con su ícono.
+
+**Archivos modificados:** `public/js/main.js` y `PENDIENTES.md`.
+
+**Verificación:** `node --check` sin errores. ⚠ La prueba en navegador a varios anchos (390–1440 px) **no se completó** porque el usuario la interrumpió para priorizar el cambio del teléfono. Queda pendiente confirmar que el menú cabe en una línea a 1024 px con los íconos.
+
+### 2026-10-29 — Número oficial único: 322 224 5833
+
+**Cambios**
+
+- `public/js/data.js` › `negocio.contacto`:
+  - `whatsapp`: `5213330105206` → `523222245833`, usado por todos los enlaces `wa.me`.
+  - `whatsappTexto`: `+52 1 33 3010 5206` → `322 224 5833`.
+  - `telefono` y `telefonoHref` ya eran `322 224 5833` / `tel:+523222245833`.
+- Todos los botones y mensajes de WhatsApp arman su enlace con `enlaceWhatsApp()` a partir de `negocio.contacto.whatsapp`, así que se actualizaron solos: botón flotante, encabezado ("Cotizar"), portada, tarjetas del catálogo, carrito, comprobante del pago con tarjeta, creador de color, valoración, contacto y pie de página.
+- `public/index.html` (`<noscript>`): un solo número para llamadas y WhatsApp, con enlace a `wa.me/523222245833`.
+- `public/js/admin-config.js`: el ejemplo de ayuda del campo WhatsApp ahora es `523222245833`.
+- Pendiente de "¿qué número es fijo y cuál es WhatsApp?" marcado como resuelto.
+
+**Archivos modificados:** `public/js/data.js`, `public/index.html`, `public/js/admin-config.js` y `PENDIENTES.md`.
+
+**Verificación**
+
+- `node --check` sin errores en los 17 módulos.
+- `grep` sin coincidencias del número anterior (`3330105206`, `33 3010 5206`, `5213330…`) en todo el proyecto, salvo el historial de este registro.
+- En Firefox headless: los 21 enlaces de WhatsApp de la página apuntan a `wa.me/523222245833`, incluidos el botón flotante, el carrito y el creador de color. Contacto muestra `322 224 5833` con `tel:+523222245833` y el HTML ya no contiene el número anterior. 0 errores en consola.
+- ⚠ Si en algún navegador se editó el contacto desde el panel de administración, ese navegador conserva su copia local (`arcos-admin-datos`) con el número anterior. Se corrige editando el campo en *Configuración › Contacto* o con *Ajustes › Restaurar valores de fábrica*.
