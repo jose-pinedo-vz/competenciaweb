@@ -72,6 +72,7 @@ const plantillaGracias = (calificacion) => {
 };
 
 export function iniciarValoracion(contenedor) {
+  if (negocio.valoracion.habilitado === false) return;
   if (almacen.leer(CLAVE_CALIFICACION) || almacenSesion.leer(CLAVE_CERRADA)) return;
 
   contenedor.innerHTML = `

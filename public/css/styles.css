@@ -297,6 +297,82 @@
     }
   }
 
+  /* ---------- Galería (galeria.js) ---------- */
+
+  .visor-galeria:not([hidden]) {
+    animation: visor-entrada 0.22s ease-out both;
+  }
+
+  .visor-galeria [data-visor-img] {
+    touch-action: pan-y; /* deja el desplazamiento vertical al navegador y el horizontal al deslizar */
+  }
+
+  @keyframes visor-entrada {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* ---------- Vista de administrador (admin.js y módulos admin-*) ---------- */
+
+  .admin-layout:not([hidden]) {
+    animation: visor-entrada 0.2s ease-out both;
+  }
+
+  .admin-sidebar {
+    overflow-y: auto;
+  }
+
+  /* Espacio final del contenido: deja libre la barra inferior en móvil. Se usa un pseudo-elemento
+     (y no padding) para que las barras "sticky" de guardar se peguen al borde real. */
+  #admin-principal::after {
+    content: '';
+    display: block;
+    height: 7rem;
+  }
+
+  @media (min-width: 64rem) {
+    #admin-principal::after {
+      height: 2.5rem;
+    }
+  }
+
+  /* Encabezados de tabla fijos al desplazarse dentro del contenedor. */
+  .admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--p-superficie-alt);
+  }
+
+  .admin-form fieldset {
+    min-width: 0; /* evita desbordes horizontales en móvil */
+  }
+
+  .admin-card {
+    min-width: 0;
+  }
+
+  .file-input-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 6rem;
+  }
+
+  /* Campos ocultos desde Ajustes › Campos omitidos. */
+  .campo-omitido {
+    display: none !important;
+  }
+
+  .admin-modal-ventana {
+    animation: ventana-pago 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .admin-aviso {
+    animation: widget-entrada 0.25s ease-out both;
+  }
+
   /* ---------- Botón flotante de WhatsApp ---------- */
 
   .wa-flotante {
@@ -347,7 +423,11 @@
     .aviso-entrada:not([hidden]),
     .panel-lateral,
     .panel-izquierdo,
-    .ventana-pago {
+    .ventana-pago,
+    .visor-galeria:not([hidden]),
+    .admin-layout:not([hidden]),
+    .admin-modal-ventana,
+    .admin-aviso {
       animation: none !important;
     }
 

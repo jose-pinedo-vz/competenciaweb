@@ -63,6 +63,37 @@ export const negocio = {
     ],
   },
 
+  /**
+   * Galería de la portada (public/js/galeria.js). Las rutas son relativas a public/.
+   * Las leyendas describen lo que se ve en cada foto; no se identifica a las personas.
+   */
+  galeria: {
+    titulo: 'La tienda en imágenes',
+    introduccion: 'Momentos de Los Arcos, la tlapalería que la familia Navarro atiende en El Pitillal desde 1984.',
+    fotos: [
+      {
+        src: 'galeria/1.jpg',
+        titulo: 'Estacionamiento para clientes',
+        descripcion: 'Lugar exclusivo para estacionarte mientras haces tu compra en Tlapalería Los Arcos.',
+      },
+      {
+        src: 'galeria/2.jpg',
+        titulo: 'Módulo de exhibición Coflex',
+        descripcion: 'Conexiones, mangueras y accesorios de plomería Coflex exhibidos frente a la tienda.',
+      },
+      {
+        src: 'galeria/3.jpg',
+        titulo: 'Nueva línea de grifería',
+        descripcion: 'Presentación de la nueva línea de grifería Coflex, entre los anaqueles de la tienda.',
+      },
+      {
+        src: 'galeria/4.jpg',
+        titulo: 'Gracias por su preferencia',
+        descripcion: 'Válvulas de descarga dual Coflex para sanitario, disponibles en Los Arcos.',
+      },
+    ],
+  },
+
   contacto: {
     direccion: {
       calle: 'Vicente Guerrero 148',
@@ -102,6 +133,7 @@ export const negocio = {
   },
 
   valoracion: {
+    habilitado: true,
     titulo: '¿Qué te parece nuestro negocio?',
     texto: 'Ayúdanos a mejorar, déjanos tu valoración.',
     etiquetas: ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'],
@@ -146,6 +178,21 @@ export const negocio = {
         { nombre: 'Zona turística', costo: 200 },
       ],
     },
+  },
+
+  /**
+   * Panel de administración (public/js/admin.js), en #admin.
+   * - pinHash: SHA-256 del PIN (nunca el PIN en texto). Vacío: el primer acceso pide crear un PIN,
+   *   que se guarda (cifrado) solo en ese navegador.
+   * - datosPublicados: ruta opcional a un JSON exportado desde el admin (p. ej. 'datos/arcos-admin.json');
+   *   si se publica junto con el sitio, sus cambios los ven todos los visitantes.
+   * ⚠ Es una protección básica del lado del cliente: para producción hace falta autenticación en servidor.
+   */
+  admin: {
+    habilitado: true,
+    pinHash: '',
+    sessionTimeout: 30, // minutos de inactividad
+    datosPublicados: '',
   },
 
   /** Vistas (pestañas) del sitio. El id es también el hash de la URL: #inicio, #productos, #contacto. */

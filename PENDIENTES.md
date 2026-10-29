@@ -22,6 +22,8 @@ Elementos opcionales para futuras versiones del sitio.
 - [ ] Confirmar con el negocio si es **distribuidor autorizado** de Coflex, Fleximatic o Presto, o si cuenta con alguna certificación o política de garantía. Hasta entonces el sitio dice "Marcas que manejamos" y "Tradición familiar", sin prometer certificación ni garantía.
 - [ ] Nombres de las marcas de impermeabilizantes, pintura y material eléctrico que se manejan realmente, para mostrarlas en la franja de marcas (hoy aparecen como "Línea · Marcas líderes del mercado").
 - [ ] Testimonios de clientes y anécdotas de los más de 40 años de historia.
+- [ ] Más fotos oficiales para la galería (fachada, mostrador, la familia Navarro) en `public/galeria/` y su entrada en `negocio.galeria.fotos` (`data.js`). Si alguna persona de las fotos actuales es de la familia, se puede mencionar en su leyenda; hoy las leyendas no identifican a nadie.
+- [ ] Si se quiere que las fotos que suben los visitantes las vea todo el mundo, hace falta un servicio de almacenamiento con moderación. Hoy solo se guardan en el navegador de quien las sube.
 - [ ] Formas de pago aceptadas y si hay servicio a domicilio.
 
 ## Técnico
@@ -40,6 +42,10 @@ Elementos opcionales para futuras versiones del sitio.
   4. Publicar con HTTPS.
   Mientras siga en demo, se puede ocultar con `pago.habilitado = false`.
 - [ ] Confirmar con el negocio si hay **envío a domicilio** y sus costos reales. Los valores actuales de `negocio.pago.envio` (zonas, $100/$200, gratis desde $1,000) vienen del prompt de pago y son de ejemplo.
+- [ ] **Panel de administración con backend real:**
+  - Hoy el PIN, la sesión y los cambios viven en el navegador. Cualquiera con acceso a ese equipo y a las herramientas de desarrollo puede saltarse el PIN.
+  - Para producción: autenticación en servidor (por ejemplo Firebase Auth o Supabase), base de datos para productos y configuración, y validación en el servidor.
+- [ ] Si el equipo va a administrar desde varios equipos, definir `admin.pinHash` en `data.js` y publicar los cambios con `admin.datosPublicados`.
 - [ ] Guardar las valoraciones en un servicio real (formulario, Google Business o Facebook) en lugar de solo en el navegador.
 
 ---
@@ -169,3 +175,155 @@ Implementado según `PROMPT_CLAUDE_AI_PAGO_TARJETA.md`. Antes se revisó el `git
   - Que ningún número completo ni CVV quede en el almacenamiento, y WhatsApp con referencia.
 - Pruebas anteriores sin cambios: catálogo con productos reales 15 de 15; contacto y valoración 17 de 17. 0 errores en consola.
 - Capturas revisadas: carrito con selector (móvil), ventana de pago (escritorio claro y móvil oscuro). En móvil se corrigió un desbordamiento horizontal (`min-w-0` en la cuadrícula y en los `fieldset`).
+
+### 2026-10-29 — Galería interactiva (portada)
+
+**Cambios**
+
+1. **Nueva sección "La tienda en imágenes"** en Inicio, entre *Quiénes somos* y la llamada a la acción final.
+   - Cuadrícula de 2 columnas en móvil y 4 en escritorio, con las 4 fotos de `public/galeria/`.
+   - Cada foto tiene título y descripción. Las leyendas describen lo que se ve (estacionamiento para clientes, módulo Coflex, nueva línea de grifería, válvulas Coflex) sin identificar a las personas. La familia Navarro se menciona en la introducción.
+2. **Visor ampliado** a pantalla completa:
+   - Navegación con anterior/siguiente (con vuelta al inicio), flechas del teclado y deslizamiento con el dedo en móvil.
+   - Contador "2 / 4".
+   - Se cierra con la X, con Esc o con clic en el fondo.
+   - Atrapa el foco, bloquea el desplazamiento del fondo y devuelve el foco a la foto al cerrar.
+   - Precarga las fotos vecinas.
+3. **"Agregar foto"**: tarjeta con "+" al final de la cuadrícula, que abre un `<input type="file" accept="image/*" multiple>` oculto. También acepta arrastrar y soltar.
+   - Los archivos se leen con **FileReader** y se reducen con canvas (máx. 1600 px, JPEG al 85%).
+   - Se agregan al instante a la cuadrícula y al visor, y se guardan en **sessionStorage** (`arcos-galeria`): persisten al recargar y desaparecen al cerrar la pestaña.
+   - Llevan la insignia "Tu foto" y un botón para quitarlas.
+   - Se ignoran los archivos que no son imagen o pesan más de 15 MB, con un mensaje de estado (`role="status"`).
+   - Si el navegador se queda sin espacio, se avisa y las fotos siguen visibles hasta recargar.
+   - Los nombres de archivo se escapan antes de mostrarse (protección contra inyección de HTML).
+
+**Archivos modificados**
+
+| Archivo | Cambio |
+|---|---|
+| `public/js/galeria.js` | Nuevo: cuadrícula, visor y carga de fotos |
+| `public/js/data.js` | Nuevo bloque `negocio.galeria` (título, introducción y las 4 fotos con leyendas) |
+| `public/js/main.js` | Sección de galería en `renderInicio()` e `iniciarGaleria()` en el arranque |
+| `public/js/almacen.js` | `guardar()` ahora devuelve `true`/`false` (para detectar falta de espacio) y se agregó `quitar()`. Compatible con el código existente |
+| `public/css/styles.css` | `.visor-galeria` (entrada y `touch-action`), incluida en el bloque de movimiento reducido |
+| `PENDIENTES.md` | Este registro y dos pendientes nuevos |
+
+**Verificación**
+
+- `node --check` sin errores en los 10 módulos de `public/js/`.
+- 23 de 23 pruebas de la galería en Firefox headless:
+  - 4 columnas en escritorio, las 4 fotos cargan, leyendas.
+  - Visor: abrir, →, ←, vuelta completa, Esc con devolución del foco.
+  - Subida simulada de 3 archivos: 2 imágenes, una de 3200×2000 reducida a 1600×1000 (41 KB), y un `.txt` rechazado.
+  - Nombre de archivo malicioso escapado, persistencia tras recargar, quitar foto, modo oscuro.
+- Pruebas anteriores sin cambios: pago 33 de 33, catálogo 15 de 15, contacto y valoración 17 de 17. 0 errores en consola.
+- Capturas revisadas: escritorio (Corporativa claro), móvil (Tradición oscuro, 2 columnas) y visor en escritorio y móvil.
+
+### 2026-10-29 — Nueva redacción del aviso del catálogo
+
+**Cambio:** el aviso amarillo de la vista Productos ahora dice, textualmente:
+
+> **Catálogo de demostración.** Las fichas técnicas e imágenes de los productos destacados fueron obtenidas de páginas y proveedores oficiales de las marcas; confirma existencias, precios vigentes y compatibilidad directamente por WhatsApp antes de tu compra.
+
+Sustituye las dos versiones anteriores ("Catálogo en construcción…" y "Catálogo de demostración. Productos, precios y existencias son ilustrativos…"). El texto ya no depende de los productos marcados como `verificado`. Ese campo se conserva en `catalogo.js` como dato, pero la interfaz ya no lo usa.
+
+**Archivos modificados:** `public/js/tienda.js` (solo el texto del aviso en `renderCatalogo()`) y `PENDIENTES.md`.
+
+**Verificación:**
+
+- `node --check` sin errores en los 10 módulos.
+- En Firefox headless, a 1440 px y a 390 px: el aviso está presente en `#productos` con el texto exacto, es visible y se mantiene al filtrar por línea. 0 errores en consola.
+
+### 2026-10-29 — Vista de administrador con CRUD
+
+Implementada según `PROMPT_CLAUDE_AI_VISTA_ADMIN.md` (commit `e3aba10`).
+
+**Cambios**
+
+1. **Nuevo `public/js/admin-datos.js` (capa de datos; primer import de `main.js`).**
+   - Aplica los cambios del admin **antes** de que se evalúen los módulos que leen los datos al cargar (horario, pago, carrito, tienda, valoración, galería). Los muta en sitio, sin reemplazar objetos, para que todas las referencias los vean.
+   - Tres capas: datos de fábrica → JSON publicado opcional (`admin.datosPublicados`) → cambios locales (`arcos-admin-datos`).
+   - `validarDatos()` revisa la estructura, los SKU únicos, los tipos, que las imágenes sean data URL o rutas relativas y que **ningún texto lleve `<` o `>`** (el sitio inserta los datos como HTML).
+   - Funciones de instantánea, guardado, importación y restauración, y configuración del panel (`arcos-admin-config`) con valores por defecto.
+2. **Nuevo `public/js/admin.js` (armazón, acceso y secciones).**
+   - Capa a pantalla completa, separada de la vista cliente.
+   - Menú lateral en escritorio y barra inferior en móvil, ruta de navegación e interruptor claro/oscuro (reutiliza el del sitio).
+   - **PIN** guardado como huella SHA-256 (`arcos-admin:` + PIN). Si `data.js` no trae `pinHash`, el primer acceso pide crearlo.
+   - Bloqueo de 60 s tras 5 intentos fallidos, sesión en `sessionStorage` con cierre por inactividad y cierre de sesión manual.
+   - **Dashboard:** productos, disponibles, agotados, en oferta, pedidos demo, valoración, lista de existencias por revisar y estado del almacenamiento.
+   - **Pedidos:** lee `obtenerHistorial()` de `pago.js`. Filtros por referencia, fechas, método y estado; paginación de 25; detalle en modal; botón "Borrar historial".
+   - **Ajustes:**
+     - Campos omitidos (productos y configuración), límites de caracteres, reglas de imagen (formatos, MB, dimensiones), paginación y tiempo de sesión.
+     - Cambio de PIN.
+     - Exportar e importar JSON (con validación y confirmación) y restaurar los valores de fábrica.
+3. **Nuevo `public/js/admin-catalogo.js`.**
+   - **Productos:** tabla en escritorio y tarjetas en móvil. Búsqueda; filtros por departamento, subcategoría, marca, destacado y verificado; orden por nombre, precio, existencias o SKU; 20 por página.
+   - **Crear y editar productos:**
+     - SKU generable y único (solo lectura al editar).
+     - Nombre, marca y descripción con límites y contador de caracteres.
+     - Subcategoría que depende del departamento, precio (≥ 0, 2 decimales) y existencias (entero ≥ 0).
+     - Precio anterior (debe ser mayor que el precio) y promoción (exige precio anterior).
+     - Imagen validada (formato, tipo real, MB, mínimo y máximo de píxeles) y reducida a 800 px, con opción de quitarla.
+     - Destacado, verificado y nuevo.
+   - **Eliminar** con confirmación. Avisa si el producto está en el carrito de este navegador.
+   - **Departamentos y subcategorías:** CRUD con identificador automático (de solo lectura al editar), ícono con vista previa y **eliminación en cascada** que indica cuántos productos se borran. *Outlet* está protegido porque sus subcategorías dependen de `promo`.
+   - Si el guardado falla por falta de espacio, el cambio se revierte en memoria.
+4. **Nuevo `public/js/admin-config.js`.** Siete secciones con validación y "Descartar cambios":
+   - **Negocio:** nombre, nombre corto, eslogan, año y logotipo con validación y texto alternativo.
+   - **Contacto:** dirección, CP de 5 dígitos, teléfono de 10 dígitos, WhatsApp en dígitos, Facebook con https y **coordenadas verificadas para activar el marcador del mapa**.
+   - **Horario:** zona horaria y bloques editables (sin días repetidos y con apertura antes del cierre).
+   - **Marcas:** destacadas y líneas, con enlaces elegidos de una lista de rutas válidas.
+   - **Pago y envío:** rechaza claves secretas `sk_`, explica que solo la demo está implementada y edita las zonas.
+   - **Valoración:** nuevo interruptor `habilitado`, textos, etiquetas y retraso.
+   - **Mensajes de WhatsApp.**
+5. **Nuevo `public/js/admin-ui.js`.** Avisos (toasts) y modales apilables con trampa de foco; Esc cierra solo el modal superior y no llega a los atajos del sitio. También confirmaciones (`alertdialog`), campos accesibles (`aria-invalid`, `aria-describedby`, contadores), validación y compresión de imágenes, y descarga de JSON.
+6. **`public/js/main.js`.**
+   - `admin-datos.js` es el primer import.
+   - La ruta `#admin/<sección>/<sub>` abre el panel y, al salir, el sitio se recarga si hubo cambios.
+   - Se inicializa el panel y se agrega el enlace "Administración" en el pie.
+7. **`public/js/data.js`.** Nuevo `negocio.admin` (`habilitado`, `pinHash`, `sessionTimeout`, `datosPublicados`) y `valoracion.habilitado`.
+8. **`public/js/valoracion.js`.** Respeta `valoracion.habilitado`.
+9. **`public/index.html`.** Contenedor `#admin-contenedor`.
+10. **`public/css/styles.css`.** `.admin-layout`, `.admin-sidebar`, `.admin-table` (encabezado fijo), `.admin-form`, `.admin-card`, `.file-input-preview`, `.campo-omitido`, `.admin-modal-ventana` y `.admin-aviso`, más un espaciador inferior del panel. Las animaciones respetan el movimiento reducido.
+
+**Diferencias con el prompt, y por qué**
+
+- **Sin pestaña "Admin" en el menú público:** el prompt la agregaba a `negocio.vistas`, lo que la habría mostrado a todos los clientes y desacomodado la barra móvil de 3 columnas. Se entra por `#admin` o por el enlace discreto del pie.
+- **Protegido desde el inicio:** el prompt proponía `pin: ''` (sin protección) y a la vez prohibía un admin público y los PIN en texto plano. Se usa `pinHash` (huella SHA-256) y, si está vacío, el primer acceso obliga a crear un PIN.
+- **Los cambios llegan a todo el sitio:** como varios módulos leen los datos al cargar, se aplican antes de evaluarlos (`admin-datos.js` primero) y el sitio se recarga al salir del panel.
+- **Publicación real opcional:** el JSON exportado se puede publicar con `admin.datosPublicados` para que lo vean todos los visitantes, no solo el navegador del administrador.
+- **Moneda limitada a MXN:** los precios del catálogo están en pesos; cambiar la etiqueta a USD sin convertir mostraría precios falsos.
+- **Ruido evitado en consola:** el JSON publicado solo se pide si está configurado, para no generar un 404.
+- **Módulos separados:** el panel se dividió en 5 archivos (`admin*.js`) en lugar de uno solo, para mantenerlo modular y fácil de auditar (`CLAUDE.MD`).
+- **Pendiente opcional:** deshacer y autoguardado no se implementaron (el prompt los marca como opcionales). La "vista previa" es el botón "Ver sitio".
+
+**Archivos modificados**
+
+| Archivo | Cambio |
+|---|---|
+| `public/js/admin.js` | Nuevo: armazón, acceso con PIN y sesión, dashboard, pedidos y ajustes |
+| `public/js/admin-datos.js` | Nuevo: capas de datos, validación, guardado, exportación e importación |
+| `public/js/admin-catalogo.js` | Nuevo: CRUD de productos, departamentos y subcategorías |
+| `public/js/admin-config.js` | Nuevo: configuración del negocio (7 secciones) |
+| `public/js/admin-ui.js` | Nuevo: avisos, modales, campos, imágenes |
+| `public/js/data.js` | `negocio.admin` y `valoracion.habilitado` |
+| `public/js/main.js` | Import temprano, ruta `#admin`, inicialización y enlace en el pie |
+| `public/js/valoracion.js` | Respeta `valoracion.habilitado` |
+| `public/css/styles.css` | Estilos del panel |
+| `public/index.html` | Contenedor `#admin-contenedor` |
+| `README.md`, `PENDIENTES.md` | Documentación |
+
+**Verificación**
+
+- `node --check` sin errores en los 15 módulos. En Node, `validarDatos()` aprueba los datos de fábrica y rechaza HTML inyectado, rutas `javascript:` y secciones no editables.
+- **46 de 46 pruebas del panel** en Firefox headless, en tres fases con recarga, a 1440 px y a 390 px:
+  - Acceso: crear PIN, huella SHA-256, PIN incorrecto con intentos restantes, cierre e inicio de sesión.
+  - Productos: listado de 20 por página, búsqueda y filtro. Crear con errores, validar imagen (.gif, 100×100 y 2400 px rechazadas; 600×600 aceptada), editar y eliminar con confirmación.
+  - Departamentos: crear departamento y subcategoría, Outlet protegido, eliminar Seguridad en cascada (6 productos).
+  - Configuración: año, teléfono, Facebook, horario con día repetido y clave `sk_` rechazados; eslogan guardado.
+  - Ajustes: campo omitido oculto en el formulario; Esc cierra el modal; pedidos vacíos.
+  - **Tras salir del panel, la vista cliente refleja los cambios:** eslogan nuevo, mega-menú sin Seguridad y con el departamento nuevo, 86 productos, producto nuevo con imagen y oferta, precio editado.
+  - La sesión sobrevive a la recarga, y **restaurar los valores de fábrica** vuelve a 92 productos y al eslogan original.
+  - 0 errores en consola en todas las fases.
+- Pruebas anteriores sin cambios: pago 33 de 33, galería 23 de 23, contacto 17 de 17. Catálogo 14 de 15: la que falla busca el texto anterior del aviso, que se cambió a petición del usuario.
+- Capturas revisadas: dashboard y listado (escritorio, claro); catálogo, formulario de edición, configuración y acceso (móvil, oscuro y claro). Se corrigió la barra "Guardar" fija en móvil.

@@ -22,6 +22,7 @@ public/
 ├── js/catalogo.js   # Departamentos, subcategorías y productos (datos de demostración)
 ├── js/tienda.js     # Vista de catálogo (filtros, búsqueda, orden) y mega-menú
 ├── js/carrito.js    # Carrito con envío del pedido por WhatsApp
+├── js/admin*.js     # Panel de administración (admin, admin-datos, admin-ui, admin-catalogo, admin-config)
 ├── js/horario.js    # Cálculo de "Abierto ahora / Cerrado" con la hora de Puerto Vallarta
 ├── js/valoracion.js # Tarjeta flotante de valoración con estrellas
 ├── js/almacen.js    # Acceso seguro a localStorage / sessionStorage
@@ -48,6 +49,26 @@ Para cambiar textos, teléfono, dirección o productos, edita únicamente `publi
   - **Tarjeta (modo demostración):** abre `public/js/pago.js` con entrega, datos de la tarjeta y resumen. **No se realiza ningún cargo.** Tarjeta de prueba aprobada: `4242 4242 4242 4242`; rechazada: `4000 0000 0000 0002` (cualquier fecha futura y CVV). Los pedidos simulados se guardan en `arcos-pedidos` solo con la marca y los últimos 4 dígitos. Para desactivarlo: `negocio.pago.habilitado = false` en `data.js`.
 - ⚠ **Los productos, precios y existencias son de demostración** (`catalogoDemostracion = true` muestra un aviso en el catálogo). Sustitúyelos por el inventario real y pon `catalogoDemostracion` en `false`.
 - **Imágenes:** agrega `imagen: 'img/productos/<archivo>'` a cada producto; mientras no exista, se muestra el ícono de la subcategoría.
+
+## Panel de administración (`#admin`)
+
+- **Cómo entrar:** abre `…/#admin` o el enlace discreto "Administración" del pie de página. La primera vez pide **crear un PIN** de 4 a 8 dígitos; se guarda como huella SHA-256 en este navegador, nunca en texto. La sesión se cierra tras 30 minutos sin actividad (se puede cambiar en Ajustes).
+- **Secciones:**
+  - **Dashboard:** resumen.
+  - **Catálogo:** CRUD de productos, departamentos y subcategorías, con validación de imágenes.
+  - **Configuración:** negocio, contacto, horario, marcas, pago, valoración y WhatsApp.
+  - **Pedidos:** pagos demo de este navegador.
+  - **Ajustes:** campos omitidos, límites, imágenes, paginación, sesión, PIN y respaldo.
+- **Dónde se guardan los cambios:** en `localStorage` de **ese navegador** (`arcos-admin-datos`, `arcos-admin-config`). Al volver al sitio, la página se recarga y muestra los cambios.
+- **Publicar los cambios para todos:**
+  1. Ve a Ajustes › Datos y pulsa *Exportar configuración*.
+  2. Guarda el archivo como `public/datos/arcos-admin.json`.
+  3. En `data.js` escribe `admin.datosPublicados: 'datos/arcos-admin.json'`.
+  4. Publica el sitio.
+- **PIN fijo para todo el equipo:** pon la huella en `admin.pinHash` (`data.js`). Para calcularla, en la consola del navegador:
+  `crypto.subtle.digest('SHA-256', new TextEncoder().encode('arcos-admin:TU_PIN')).then(b => console.log([...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('')))`
+- **Para desactivar el panel:** `admin.habilitado = false`.
+- ⚠ Es una protección del lado del cliente, suficiente para una demostración pero **no es seguridad real**. Para producción hace falta un backend con autenticación.
 
 ## Horario y valoración
 

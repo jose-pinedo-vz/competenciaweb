@@ -1,3 +1,5 @@
+// Primero: aplica los cambios del panel de administración antes de que los demás módulos lean los datos.
+import { hayCambiosSinAplicar } from './admin-datos.js';
 import { negocio, paletas, trayectoria, direccionCompleta, enlaceWhatsApp } from './data.js';
 import { almacen } from './almacen.js';
 import { estadoNegocio, rangoHorario } from './horario.js';
@@ -6,6 +8,8 @@ import { departamentos, productosDe } from './catalogo.js';
 import { renderCatalogo, iniciarCatalogo, navegarCatalogo, renderMegaMenu, iniciarMegaMenu } from './tienda.js';
 import { iniciarCarrito, alCambiar, vaciarCarrito, abrirCarrito } from './carrito.js';
 import { iniciarPago } from './pago.js';
+import { iniciarGaleria } from './galeria.js';
+import { iniciarAdmin, mostrarAdmin, ocultarAdmin } from './admin.js';
 
 const $ = (selector, raiz = document) => raiz.querySelector(selector);
 const $$ = (selector, raiz = document) => [...raiz.querySelectorAll(selector)];
@@ -361,6 +365,13 @@ function renderInicio() {
         </div>
       </div>
 
+      <section class="mt-12 sm:mt-16" aria-labelledby="titulo-galeria">
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-acento-texto">Galería</p>
+        <h2 id="titulo-galeria" class="mt-2 text-2xl font-extrabold tracking-tight text-texto sm:text-3xl">${negocio.galeria.titulo}</h2>
+        <p class="mt-2 max-w-2xl text-texto-suave">${negocio.galeria.introduccion}</p>
+        <div id="galeria-contenedor" class="mt-6"></div>
+      </section>
+
       <div class="relative mt-12 overflow-hidden rounded-3xl bg-primario px-6 py-8 sm:mt-16 sm:px-10 sm:py-10">
         <div class="patron-industrial absolute inset-0 opacity-60" aria-hidden="true"></div>
         <div class="relative flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
@@ -615,9 +626,14 @@ function renderPie() {
         </a>
       </div>
     </div>
-    <p class="mx-auto mt-6 max-w-7xl border-t border-borde px-4 pb-24 pt-4 text-xs text-texto-tenue sm:px-6 lg:px-8 lg:pb-6">
-      © ${anioActual} ${negocio.nombre}. Todos los derechos reservados. Orgullosamente de El Pitillal desde ${negocio.anioFundacion}.
-    </p>`;
+    <div class="mx-auto mt-6 flex max-w-7xl flex-col gap-2 border-t border-borde px-4 pb-24 pt-4 text-xs text-texto-tenue sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 lg:pb-6">
+      <p>© ${anioActual} ${negocio.nombre}. Todos los derechos reservados. Orgullosamente de El Pitillal desde ${negocio.anioFundacion}.</p>
+      ${
+        negocio.admin.habilitado
+          ? '<a href="#admin" class="inline-flex items-center gap-1.5 self-start rounded px-1 py-0.5 text-texto-tenue transition-colors hover:text-texto"><i class="fa-solid fa-lock text-[0.6rem]" aria-hidden="true"></i> Administración</a>'
+          : ''
+      }
+    </div>`;
 }
 
 function renderWhatsAppFlotante() {
@@ -737,6 +753,7 @@ let vistaActiva = null;
 function rutaDesdeHash() {
   const [id, ...resto] = decodeURIComponent(location.hash.slice(1)).split('/');
   if (!id) return { id: 'inicio', resto: [] };
+  if (id === 'admin' && negocio.admin.habilitado) return { id, resto };
   return idsVistas.has(id) ? { id, resto } : null;
 }
 
@@ -779,6 +796,9 @@ function mostrarVista(id, { enfocar = false } = {}) {
 }
 
 function irARuta(ruta, { enfocar }) {
+  if (ruta.id === 'admin') return mostrarAdmin(ruta.resto);
+  // Al salir del panel: si se guardaron cambios, se recarga para que todo el sitio los muestre.
+  if (ocultarAdmin() && hayCambiosSinAplicar()) return location.reload();
   if (ruta.id === 'productos') navegarCatalogo(ruta.resto);
   if (ruta.id !== vistaActiva) return mostrarVista(ruta.id, { enfocar });
   // Misma vista (cambio de departamento): sin animación, solo subir al título.
@@ -819,9 +839,11 @@ function iniciar() {
   });
   iniciarCatalogo($('#vista-productos'));
   iniciarMegaMenu();
-  iniciarNavegacion();
   iniciarEstadoNegocio();
   iniciarValoracion($('#valoracion-flotante'));
+  iniciarGaleria($('#galeria-contenedor'));
+  if (negocio.admin.habilitado) iniciarAdmin($('#admin-contenedor'));
+  iniciarNavegacion();
 }
 
 iniciar();

@@ -203,11 +203,7 @@ export function renderCatalogo(contenedor) {
         catalogoDemostracion
           ? `<p class="mt-5 flex items-start gap-2.5 rounded-xl border border-destaque/50 bg-destaque/10 px-4 py-3 text-xs leading-relaxed text-texto sm:text-sm">
                <i class="fa-solid fa-circle-info mt-0.5 text-destaque-texto oscuro:text-destaque" aria-hidden="true"></i>
-               <span>${
-                 productos.some((p) => p.verificado)
-                   ? '<strong>Catálogo en construcción.</strong> Los productos <strong>destacados con fotografía</strong> tienen precio y existencia reales; el resto es de demostración. Confirma por WhatsApp antes de tu compra.'
-                   : '<strong>Catálogo de demostración.</strong> Productos, precios y existencias son ilustrativos; confirma por WhatsApp antes de tu compra.'
-               }</span>
+               <span><strong>Catálogo de demostración.</strong> Las fichas técnicas e imágenes de los productos destacados fueron obtenidas de páginas y proveedores oficiales de las marcas; confirma existencias, precios vigentes y compatibilidad directamente por WhatsApp antes de tu compra.</span>
              </p>`
           : ''
       }
