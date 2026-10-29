@@ -23,6 +23,7 @@ public/
 ├── js/tienda.js     # Vista de catálogo (filtros, búsqueda, orden) y mega-menú
 ├── js/carrito.js    # Carrito con envío del pedido por WhatsApp
 ├── js/admin*.js     # Panel de administración (admin, admin-datos, admin-ui, admin-catalogo, admin-config)
+├── js/creador-color.js # "Crea tu color": mezcla, vista previa en habitación y consulta por WhatsApp
 ├── js/horario.js    # Cálculo de "Abierto ahora / Cerrado" con la hora de Puerto Vallarta
 ├── js/valoracion.js # Tarjeta flotante de valoración con estrellas
 ├── js/almacen.js    # Acceso seguro a localStorage / sessionStorage
@@ -50,13 +51,22 @@ Para cambiar textos, teléfono, dirección o productos, edita únicamente `publi
 - ⚠ **Los productos, precios y existencias son de demostración** (`catalogoDemostracion = true` muestra un aviso en el catálogo). Sustitúyelos por el inventario real y pon `catalogoDemostracion` en `false`.
 - **Imágenes:** agrega `imagen: 'img/productos/<archivo>'` a cada producto; mientras no exista, se muestra el ícono de la subcategoría.
 
+## Crea tu color (`#color`)
+
+- Apartado independiente del catálogo: el visitante **crea su propio tono** y lo ve aplicado en una habitación (sala, cocina, dormitorio o baño, dibujadas en SVG).
+- Herramientas: selector de color, código HEX (acepta `#abc`), deslizadores de tono, saturación y luminosidad, 7 variaciones de más claro a más oscuro, paleta de inicio con nombres genéricos (`negocio.creadorColor.paleta` en `data.js`) y "Mis colores" (hasta 8, en `localStorage` → `arcos-colores`).
+- Muestra HEX, RGB, HSL y un nombre descriptivo aproximado ("Azul claro", "Verde grisáceo"…).
+- **"Preguntar por este color"** abre WhatsApp con el color, el acabado, el uso, los m² aproximados, un comentario y un enlace `#color/RRGGBB` para verlo.
+- Avisa que el color en pantalla es aproximado y que la tienda confirma si puede prepararlo o igualarlo.
+
 ## Panel de administración (`#admin`)
 
-- **Cómo entrar:** abre `…/#admin` o el enlace discreto "Administración" del pie de página. La primera vez pide **crear un PIN** de 4 a 8 dígitos; se guarda como huella SHA-256 en este navegador, nunca en texto. La sesión se cierra tras 30 minutos sin actividad (se puede cambiar en Ajustes).
+- **Cómo entrar:** pulsa el botón **Admin** del encabezado (o abre `…/#admin`; también hay un enlace en el pie de página). La primera vez pide **crear un PIN** de 4 a 8 dígitos; se guarda como huella SHA-256 en este navegador, nunca en texto. La sesión se cierra tras 30 minutos sin actividad (se puede cambiar en Ajustes).
 - **Secciones:**
   - **Dashboard:** resumen.
   - **Catálogo:** CRUD de productos, departamentos y subcategorías, con validación de imágenes.
   - **Configuración:** negocio, contacto, horario, marcas, pago, valoración y WhatsApp.
+  - **Galería:** subir fotos (validadas y reducidas a 1400 px) y eliminar cualquier foto. La galería pública es de solo lectura.
   - **Pedidos:** pagos demo de este navegador.
   - **Ajustes:** campos omitidos, límites, imágenes, paginación, sesión, PIN y respaldo.
 - **Dónde se guardan los cambios:** en `localStorage` de **ese navegador** (`arcos-admin-datos`, `arcos-admin-config`). Al volver al sitio, la página se recarga y muestra los cambios.

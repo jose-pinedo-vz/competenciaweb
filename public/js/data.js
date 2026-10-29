@@ -18,19 +18,18 @@ export const negocio = {
   },
 
   historia: {
-    fundadores: ['José Navarro', 'Teresa Ocampo'],
-    familia: 'familia Navarro',
+    // Sin nombres de personas: solo datos confirmados (negocio familiar, fundado en 1984 en El Pitillal).
     resumen:
-      'Fundada en 1984 por José Navarro y Teresa Ocampo, Los Arcos es atendida hasta hoy por la familia Navarro en El Pitillal, Puerto Vallarta.',
+      'Fundada en 1984 en El Pitillal, Puerto Vallarta, Los Arcos es un negocio familiar que sigue atendiendo con la confianza de siempre.',
     parrafos: [
-      'En 1984, José Navarro y Teresa Ocampo abrieron las puertas de un pequeño negocio en el corazón de El Pitillal con una idea sencilla: que los vecinos encontraran cerca de casa el material que necesitaban, con precios justos y un trato de confianza.',
-      'Más de cuatro décadas después, la familia Navarro sigue detrás del mostrador. Conocemos a nuestros clientes por su nombre, sabemos qué pieza necesitan aunque no recuerden cómo se llama y seguimos aconsejando con la misma honestidad del primer día.',
+      'En 1984 abrimos las puertas de un pequeño negocio familiar en el corazón de El Pitillal con una idea sencilla: que los vecinos encontraran cerca de casa el material que necesitaban, con precios justos y un trato de confianza.',
+      'Más de cuatro décadas después seguimos detrás del mostrador como el primer día. Conocemos a nuestros clientes, entendemos qué pieza necesitan aunque no recuerden cómo se llama y aconsejamos con honestidad, para que te lleves solo lo que de verdad te sirve.',
     ],
     valores: [
       {
         icono: 'fa-solid fa-people-roof',
         titulo: 'Negocio familiar',
-        texto: 'Atendido por la familia Navarro desde su fundación.',
+        texto: 'Atendido por la misma familia desde su fundación en 1984.',
       },
       {
         icono: 'fa-solid fa-handshake',
@@ -66,10 +65,11 @@ export const negocio = {
   /**
    * Galería de la portada (public/js/galeria.js). Las rutas son relativas a public/.
    * Las leyendas describen lo que se ve en cada foto; no se identifica a las personas.
+   * Las fotos se agregan y eliminan desde el panel de administración (#admin/galeria).
    */
   galeria: {
     titulo: 'La tienda en imágenes',
-    introduccion: 'Momentos de Los Arcos, la tlapalería que la familia Navarro atiende en El Pitillal desde 1984.',
+    introduccion: 'Momentos de Los Arcos, la tlapalería familiar que atiende a El Pitillal desde 1984.',
     fotos: [
       {
         src: 'galeria/1.jpg',
@@ -199,8 +199,41 @@ export const negocio = {
   vistas: [
     { id: 'inicio', etiqueta: 'Inicio', icono: 'fa-solid fa-house', titulo: 'Inicio' },
     { id: 'productos', etiqueta: 'Productos', icono: 'fa-solid fa-boxes-stacked', titulo: 'Productos y catálogo' },
+    { id: 'color', etiqueta: 'Colores', icono: 'fa-solid fa-palette', titulo: 'Crea tu color' },
     { id: 'contacto', etiqueta: 'Contacto', icono: 'fa-solid fa-location-dot', titulo: 'Ubicación y contacto' },
   ],
+
+  /**
+   * Creador de color (public/js/creador-color.js), en #color.
+   * Es independiente del catálogo: el visitante crea un tono y pregunta por él por WhatsApp.
+   * La paleta de inicio usa nombres genéricos (no son colores de ninguna marca).
+   */
+  creadorColor: {
+    colorInicial: '#9CAF88',
+    paleta: [
+      { nombre: 'Blanco hueso', hex: '#F2EBDD' },
+      { nombre: 'Arena', hex: '#D9C7A7' },
+      { nombre: 'Terracota', hex: '#C4693D' },
+      { nombre: 'Ocre', hex: '#CC9A3A' },
+      { nombre: 'Verde salvia', hex: '#9CAF88' },
+      { nombre: 'Verde bosque', hex: '#2F5D50' },
+      { nombre: 'Azul cielo', hex: '#9CC3E6' },
+      { nombre: 'Azul marino', hex: '#1F3A5F' },
+      { nombre: 'Gris perla', hex: '#C9CCD1' },
+      { nombre: 'Gris carbón', hex: '#3E4247' },
+      { nombre: 'Rosa palo', hex: '#E8C4C0' },
+      { nombre: 'Lavanda', hex: '#B8A9D9' },
+    ],
+    habitaciones: [
+      { id: 'sala', nombre: 'Sala', icono: 'fa-solid fa-couch' },
+      { id: 'cocina', nombre: 'Cocina', icono: 'fa-solid fa-kitchen-set' },
+      { id: 'dormitorio', nombre: 'Dormitorio', icono: 'fa-solid fa-bed' },
+      { id: 'bano', nombre: 'Baño', icono: 'fa-solid fa-bath' },
+    ],
+    acabados: ['Mate', 'Satinado', 'Semibrillante', 'Brillante', 'No sé, recomiéndenme'],
+    usos: ['Interior', 'Exterior'],
+    maxGuardados: 8,
+  },
 };
 
 /**

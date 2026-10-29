@@ -13,7 +13,7 @@ import { almacen } from './almacen.js';
  *   aplica los cambios del admin antes de que esos módulos se evalúen.
  * - Los cambios se aplican "en sitio" (se mutan los mismos objetos y arreglos, nunca se
  *   reemplazan) para que todas las referencias existentes vean los datos actualizados.
- * - Datos de solo lectura: paletas, vistas, historia, galería, líneas del catálogo y el
+ * - Datos de solo lectura: paletas, vistas, historia, líneas del catálogo y el
  *   departamento Outlet (sus subcategorías dependen del campo `promo`).
  *
  * Capas (de menor a mayor prioridad):
@@ -30,7 +30,7 @@ export const VERSION_DATOS = 1;
 /** Secciones de `negocio` que el admin puede editar. */
 export const SECCIONES_NEGOCIO = [
   'nombre', 'nombreCorto', 'eslogan', 'anioFundacion', 'logo',
-  'contacto', 'horario', 'marcas', 'pago', 'valoracion', 'mensajesWhatsApp',
+  'contacto', 'horario', 'marcas', 'pago', 'valoracion', 'mensajesWhatsApp', 'galeria',
 ];
 
 /** Configuración del propio panel (paso 8 del prompt). */
@@ -105,6 +105,15 @@ export function validarDatos(datos) {
       if (ajenas.length) errores.push(`negocio: secciones no editables (${ajenas.join(', ')}).`);
       const logo = datos.negocio.logo?.src;
       if (logo != null && (typeof logo !== 'string' || !RUTA_IMAGEN_SEGURA.test(logo))) errores.push('negocio.logo: imagen no válida.');
+      const fotos = datos.negocio.galeria?.fotos;
+      if (fotos != null) {
+        if (!Array.isArray(fotos)) errores.push('negocio.galeria.fotos debe ser una lista.');
+        else
+          fotos.forEach((f, i) => {
+            if (!esObjeto(f) || typeof f.src !== 'string' || !RUTA_IMAGEN_SEGURA.test(f.src)) errores.push(`negocio.galeria.fotos[${i}]: imagen no válida.`);
+            else if (typeof f.titulo !== 'string' || !f.titulo.trim()) errores.push(`negocio.galeria.fotos[${i}]: falta el título.`);
+          });
+      }
     }
   }
 

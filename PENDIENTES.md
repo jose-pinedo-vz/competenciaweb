@@ -8,7 +8,7 @@ Elementos opcionales para futuras versiones del sitio.
 - [ ] **Coordenadas exactas del local** en `negocio.contacto.coordenadas` (y `verificadas: true`) para mostrar el marcador en el mapa. OpenStreetMap no ubica el número 148 de Vicente Guerrero en El Pitillal Centro.
 - [ ] Confirmar qué número es fijo y cuál es WhatsApp: el sitio muestra el 322 224 5833 para llamadas y el +52 1 33 3010 5206 para WhatsApp.
 - [ ] Horarios en días festivos.
-- [ ] Fotografías reales de la fachada, el mostrador y la familia Navarro (guardar en `public/img/`).
+- [ ] Fotografías reales de la fachada, el mostrador y la familia que atiende el negocio (guardar en `public/img/`).
 - [ ] Elegir la paleta definitiva (o conservar el selector) y fijarla como predeterminada en `data.js`.
 - [ ] Unificar el eslogan: el logotipo dice *"El que no conoce los Arcos no conoce el Pitillal"* y el sitio usa *"Si no conoces los Arcos no conoces el Pitillal"*.
 - [ ] Versión del logotipo en SVG o PNG con fondo transparente (el JPEG actual tiene fondo blanco y se muestra sobre una placa blanca).
@@ -22,8 +22,11 @@ Elementos opcionales para futuras versiones del sitio.
 - [ ] Confirmar con el negocio si es **distribuidor autorizado** de Coflex, Fleximatic o Presto, o si cuenta con alguna certificación o política de garantía. Hasta entonces el sitio dice "Marcas que manejamos" y "Tradición familiar", sin prometer certificación ni garantía.
 - [ ] Nombres de las marcas de impermeabilizantes, pintura y material eléctrico que se manejan realmente, para mostrarlas en la franja de marcas (hoy aparecen como "Línea · Marcas líderes del mercado").
 - [ ] Testimonios de clientes y anécdotas de los más de 40 años de historia.
-- [ ] Más fotos oficiales para la galería (fachada, mostrador, la familia Navarro) en `public/galeria/` y su entrada en `negocio.galeria.fotos` (`data.js`). Si alguna persona de las fotos actuales es de la familia, se puede mencionar en su leyenda; hoy las leyendas no identifican a nadie.
-- [ ] Si se quiere que las fotos que suben los visitantes las vea todo el mundo, hace falta un servicio de almacenamiento con moderación. Hoy solo se guardan en el navegador de quien las sube.
+- [ ] Confirmar con el negocio si prepara pintura al color (máquina igualadora o colorantes) y con qué marcas. Si sí, se puede agregar al aviso de "Crea tu color". Hoy el sitio solo pregunta "¿Pueden preparar o igualar este tono?".
+- [ ] `PROMPT_CLAUDE_AI_VISUALIZADOR_COLOR.md` proponía además un campo `colorHex` en los productos de pintura. Por decisión del usuario se implementó un apartado independiente del catálogo. Si después se quiere el color por producto, se puede reutilizar `creador-color.js`.
+- [ ] Más fotos oficiales para la galería (fachada, mostrador, la familia que atiende) en `public/galeria/` y su entrada en `negocio.galeria.fotos` (`data.js`). Hoy las leyendas no identifican a nadie.
+- [ ] Si el negocio confirma los nombres de sus fundadores o de la familia, se pueden agregar en `negocio.historia` (`data.js`). Hoy el sitio no menciona a ninguna persona.
+- [ ] Las fotos que el administrador sube a la galería se guardan como data URL en `arcos-admin-datos` (localStorage, ~5 MB). Para publicarlas a todos se exportan con el JSON (`admin.datosPublicados`). Con muchas fotos conviene subirlas a `public/galeria/` como archivos y agregarlas en `data.js`.
 - [ ] Formas de pago aceptadas y si hay servicio a domicilio.
 
 ## Técnico
@@ -327,3 +330,127 @@ Implementada según `PROMPT_CLAUDE_AI_VISTA_ADMIN.md` (commit `e3aba10`).
   - 0 errores en consola en todas las fases.
 - Pruebas anteriores sin cambios: pago 33 de 33, galería 23 de 23, contacto 17 de 17. Catálogo 14 de 15: la que falla busca el texto anterior del aviso, que se cambió a petición del usuario.
 - Capturas revisadas: dashboard y listado (escritorio, claro); catálogo, formulario de edición, configuración y acceso (móvil, oscuro y claro). Se corrigió la barra "Guardar" fija en móvil.
+
+### 2026-10-29 — "Quiénes somos" sin nombres de personas
+
+**Cambios**
+
+- Se eliminaron los nombres "José Navarro" y "Teresa Ocampo" y el apellido "Navarro" ("familia Navarro"), porque no aparecen en la documentación oficial del negocio.
+- Se conserva lo que sí está confirmado: negocio familiar, fundado en 1984, en El Pitillal, con más de 40 años de trayectoria, atención de confianza y arraigo local.
+- **`data.js` › `negocio.historia`:**
+  - Se quitaron los campos `fundadores` y `familia`.
+  - `resumen` y `parrafos` se reescribieron sin nombres ("En 1984 abrimos las puertas de un pequeño negocio familiar…", "Más de cuatro décadas después seguimos detrás del mostrador…").
+  - El valor "Negocio familiar" ahora dice "Atendido por la misma familia desde su fundación en 1984".
+- **`data.js` › `negocio.galeria.introduccion`:** "…la tlapalería familiar que atiende a El Pitillal desde 1984."
+- **`main.js`:**
+  - Tarjeta de "Quiénes somos": en lugar de "por José Navarro y Teresa Ocampo" ahora dice "Un negocio familiar con **más de 40 años** en El Pitillal" (calculado con `trayectoria()`).
+  - Portada: "con la asesoría honesta de un negocio familiar desde 1984".
+  - Tarjeta del logotipo: "Negocio local · Familiar".
+- Las entradas anteriores de este registro conservan su texto original como historial. Los pendientes que nombraban a la familia se reescribieron.
+
+**Archivos modificados:** `public/js/data.js`, `public/js/main.js` y `PENDIENTES.md`.
+
+**Verificación:**
+
+- `node --check` sin errores en los 15 módulos.
+- `grep` sin coincidencias de "Navarro", "Ocampo", "fundadores" ni `historia.familia` en `public/`.
+- En Firefox headless, Inicio, Productos y Contacto sin nombres de personas; "Quiénes somos" conserva 1984, negocio familiar, más de 40 años y arraigo local. 0 errores en consola. Captura revisada.
+
+### 2026-10-29 — Botón de admin visible y galería administrada solo desde el panel
+
+**Cambios**
+
+1. **Botón "Admin" en el encabezado** (`main.js`, `renderEncabezado()`): enlace a `#admin` con el ícono `fa-user-shield`, entre el selector de modo y el carrito.
+   - Usa los colores de la paleta (`bg-primario-suave`, `text-primario-texto`; se rellena al pasar el cursor), así que funciona en modo claro/oscuro y con todas las paletas.
+   - En móvil se muestra solo el ícono, con `aria-label` "Vista de administrador"; desde `sm` muestra el texto "Admin". Mide 44 px de alto, el área táctil mínima.
+   - El enlace del pie de página se conserva como acceso secundario.
+2. **Galería pública de solo lectura** (`galeria.js`):
+   - Se eliminaron la tarjeta "Agregar foto", el `<input type="file">`, arrastrar y soltar, el botón de quitar y el guardado en `sessionStorage`.
+   - La cuadrícula y el visor siguen iguales para todos los visitantes y muestran `negocio.galeria.fotos` (carpeta `public/galeria/` más lo agregado desde el admin).
+   - Si la galería queda vacía, aparece el aviso "Muy pronto compartiremos fotos de la tienda".
+   - Al iniciar se borra la clave antigua `arcos-galeria` de `sessionStorage` (fotos de visitantes de la versión anterior).
+3. **Nueva sección "Galería" en el panel** (`admin-galeria.js`, ruta `#admin/galeria`; la barra móvil del admin pasa a 6 columnas):
+   - **Subir fotos** con botón, zona clicable o arrastrar y soltar, varias a la vez.
+     - Validación: formatos permitidos de Ajustes, tipo real, hasta 10 MB y mínimo de Ajustes. No hay máximo de píxeles porque se reducen a 1400 px en JPEG.
+     - Un formulario pide título (obligatorio, máx. 60) y descripción (máx. 160) para cada foto, sin `<` ni `>`.
+   - **Eliminar** cualquier foto, de la carpeta o subida, con confirmación. La confirmación explica que el archivo de la carpeta no se borra y se recupera con "Restaurar valores de fábrica".
+   - Insignias "Carpeta" / "Subida", posición (1/5…) y conteo.
+   - Se guarda con el resto de los datos del admin (`arcos-admin-datos`, localStorage), así que también se exporta, importa, restaura y publica con `admin.datosPublicados`. Si no hay espacio, el cambio se revierte.
+4. **`admin-datos.js`:** `galeria` se agregó a `SECCIONES_NEGOCIO` y `validarDatos()` revisa cada foto (imagen segura y título obligatorio).
+
+**Archivos modificados**
+
+| Archivo | Cambio |
+|---|---|
+| `public/js/galeria.js` | Galería pública de solo lectura; exporta `srcFoto()` |
+| `public/js/admin-galeria.js` | Nuevo: subir y eliminar fotos desde el panel |
+| `public/js/admin.js` | Vista "Galería" en el menú y en la ruta; barra móvil de 6 columnas |
+| `public/js/admin-datos.js` | `galeria` editable y validada |
+| `public/js/main.js` | Botón "Admin" en el encabezado |
+| `public/js/data.js` | Comentario de `negocio.galeria` |
+| `README.md`, `PENDIENTES.md` | Documentación |
+
+**Verificación**
+
+- `node --check` sin errores en los 16 módulos.
+- **21 de 21 pruebas** en Firefox headless, en 3 fases con recarga, a 1440 px y a 390 px:
+  - Botón Admin visible (98×44 px) que abre el panel.
+  - Galería pública con 4 fotos, sin "Agregar foto", sin quitar y sin input de archivos; el visor funciona; se limpió la clave antigua.
+  - En el panel: rechazo de .gif y 100×100 con avisos; foto de 3000 px aceptada y reducida a 1400×933; título vacío con error; 2 fotos subidas y una de la carpeta eliminada.
+  - **El público ve los cambios** (5 fotos, la subida en el visor) **sin controles de edición**, y restaurar devuelve las 4 fotos.
+  - 0 errores en consola.
+- Pruebas anteriores: admin 46 de 46, pago 33 de 33, contacto 17 de 17, catálogo 14 de 15 (la que falla busca el texto antiguo del aviso, cambiado a petición del usuario). La prueba de galería anterior (`prueba7`) cubría la carga pública que se eliminó a propósito.
+- Capturas revisadas: encabezado y galería pública (escritorio claro, móvil Tradición oscuro) y la sección Galería del panel (escritorio claro, móvil Moderno oscuro).
+
+### 2026-10-29 — Apartado "Crea tu color" (independiente del catálogo)
+
+A pedido del usuario, en lugar del visualizador ligado a productos de `PROMPT_CLAUDE_AI_VISUALIZADOR_COLOR.md` (commit `f127ee3`), se creó un apartado propio donde el visitante crea un tono y pregunta por él.
+
+**Cambios**
+
+1. **Nueva vista `#color`** ("Colores" en el menú y en la barra móvil, que pasa a 4 columnas calculadas con `negocio.vistas.length`). Acepta `#color/RRGGBB` para compartir un tono.
+2. **Nuevo `public/js/creador-color.js`:**
+   - **Mezcla:**
+     - `input type="color"`, código HEX validado (`normalizarHex`: acepta 3 o 6 dígitos, con o sin `#`; muestra un error y `aria-invalid` si no es válido).
+     - 3 deslizadores HSL con pista de degradado, `aria-valuetext` y área táctil de 44 px.
+     - 7 variaciones de luminosidad (±10/20/30).
+   - **Vista previa:** habitación SVG en perspectiva (techo, 3 paredes con `fill: var(--tono)` y sombreado lateral, piso) con muebles para sala, cocina, dormitorio y baño. `role="img"` con descripción accesible ("Cocina con paredes color Terracota (#C4693D)").
+   - **Información:**
+     - Franja con el nombre descriptivo y texto de contraste automático (luminancia WCAG).
+     - HEX, RGB, HSL y botón para copiar, con mensaje alterno si el navegador no permite el portapapeles.
+     - Anuncio en vivo para lectores de pantalla.
+   - **Paleta de inicio** (12 colores con nombres genéricos, no de marcas) y **"Mis colores"** (guardar y quitar, máx. 8, `localStorage` → `arcos-colores`).
+   - **Consulta por WhatsApp:** acabado, uso (interior/exterior), m² opcionales y comentario. El mensaje incluye nombre, HEX, RGB, esos datos, la pregunta "¿Pueden preparar o igualar este tono?" y el enlace `#color/RRGGBB`.
+   - **Aviso honesto:** "El color en pantalla es aproximado… te confirmamos si podemos prepararlo o igualarlo".
+   - La dirección se actualiza con `history.replaceState`, sin llenar el historial.
+3. **`data.js`:** nueva vista `color` en `negocio.vistas` y bloque `negocio.creadorColor` (color inicial, paleta, habitaciones, acabados, usos y máximo de guardados).
+4. **`main.js`:**
+   - Importa e inicializa el módulo, y la ruta `#color/<hex>` llama a `navegarColor()`.
+   - La barra móvil usa tantas columnas como vistas.
+   - El nombre de la paleta del encabezado solo se muestra desde `2xl` (1536 px) y sin partirse, porque con la 4.ª pestaña se partía en dos líneas a 1440 px.
+5. **`index.html`:** sección `#vista-color`.
+6. **`styles.css`:** `.habitacion-svg`, `.habitacion-pared` (transición de `fill`), `.color-swatch` y `.deslizador-color` (pista y control en WebKit y Firefox, foco visible). Las transiciones respetan el movimiento reducido.
+
+**Archivos modificados**
+
+| Archivo | Cambio |
+|---|---|
+| `public/js/creador-color.js` | Nuevo: creador de color |
+| `public/js/data.js` | Vista `color` y `negocio.creadorColor` |
+| `public/js/main.js` | Inicialización, ruta `#color/<hex>`, barra móvil y nombre de paleta en `2xl` |
+| `public/index.html` | Sección `#vista-color` |
+| `public/css/styles.css` | Estilos del visualizador y los deslizadores |
+| `README.md`, `PENDIENTES.md` | Documentación |
+
+**Verificación**
+
+- `node --check` sin errores en los 17 módulos.
+- En Node: `normalizarHex` (6 casos), conversión HEX↔HSL y nombres descriptivos de los 12 colores de la paleta.
+- **21 de 21 pruebas** en Firefox headless, a 1440 px y a 390 px:
+  - Pestaña, vista y foco; vista independiente de productos.
+  - HEX válido, inválido y corto; deslizador; variaciones; paleta.
+  - Habitaciones y las 3 paredes con el tono; guardar y quitar en "Mis colores".
+  - Mensaje de WhatsApp completo, dirección compartible y enlace `#color/1F3A5F`; copiar sin errores; modo oscuro.
+  - 0 errores en consola.
+- Pruebas anteriores: admin 46 de 46, galería 21 de 21, pago 33 de 33, contacto 17 de 17, catálogo 14 de 15 (la conocida del texto antiguo del aviso).
+- Capturas revisadas: escritorio claro, móvil Moderno oscuro (dormitorio) y encabezado a 1024, 1440 y 1600 px.

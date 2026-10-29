@@ -11,9 +11,10 @@ import {
 } from './admin-ui.js';
 import { renderAdminCatalogo, CAMPOS_PRODUCTO_OMITIBLES } from './admin-catalogo.js';
 import { renderAdminConfig, CAMPOS_CONFIG_OMITIBLES } from './admin-config.js';
+import { renderAdminGaleria } from './admin-galeria.js';
 
 /*
- * Vista de administrador (#admin): dashboard, catálogo, configuración, pedidos y ajustes.
+ * Vista de administrador (#admin): dashboard, catálogo, configuración, galería, pedidos y ajustes.
  *
  * - Es una capa a pantalla completa, separada de la vista cliente: no modifica su HTML y,
  *   al salir, el sitio se recarga si hubo cambios para mostrarlos.
@@ -35,6 +36,7 @@ export const vistasAdmin = [
   { id: 'dashboard', etiqueta: 'Dashboard', corta: 'Resumen', icono: 'fa-solid fa-chart-line' },
   { id: 'catalogo', etiqueta: 'Catálogo', corta: 'Catálogo', icono: 'fa-solid fa-boxes-stacked' },
   { id: 'configuracion', etiqueta: 'Configuración', corta: 'Negocio', icono: 'fa-solid fa-gear' },
+  { id: 'galeria', etiqueta: 'Galería', corta: 'Galería', icono: 'fa-solid fa-images' },
   { id: 'pedidos', etiqueta: 'Pedidos', corta: 'Pedidos', icono: 'fa-solid fa-receipt' },
   { id: 'ajustes', etiqueta: 'Ajustes', corta: 'Ajustes', icono: 'fa-solid fa-sliders' },
 ];
@@ -136,7 +138,7 @@ function renderArmazon(contenedor) {
         <main id="admin-principal" class="min-h-0 flex-1 overflow-y-auto px-4 pt-6 sm:px-6 lg:px-8"></main>
       </div>
 
-      <nav aria-label="Secciones de administración" class="admin-nav-movil pestanas-seguras fixed inset-x-0 bottom-0 z-10 grid grid-cols-5 border-t border-borde bg-superficie/95 backdrop-blur-md lg:hidden" data-nav-movil data-solo-sesion></nav>
+      <nav aria-label="Secciones de administración" class="admin-nav-movil pestanas-seguras fixed inset-x-0 bottom-0 z-10 grid grid-cols-6 border-t border-borde bg-superficie/95 backdrop-blur-md lg:hidden" data-nav-movil data-solo-sesion></nav>
       <div id="admin-avisos" class="pointer-events-none fixed inset-x-4 bottom-20 z-[100] flex flex-col items-end gap-2 sm:left-auto lg:bottom-6"></div>
     </div>`;
 
@@ -703,6 +705,7 @@ function renderSeccion() {
     dashboard: renderDashboard,
     catalogo: () => renderAdminCatalogo(principal, ctx, ruta.sub),
     configuracion: () => renderAdminConfig(principal, ctx, ruta.sub),
+    galeria: () => renderAdminGaleria(principal, ctx),
     pedidos: renderPedidos,
     ajustes: renderAjustes,
   };

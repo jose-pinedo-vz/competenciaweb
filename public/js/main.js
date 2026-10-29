@@ -9,6 +9,7 @@ import { renderCatalogo, iniciarCatalogo, navegarCatalogo, renderMegaMenu, inici
 import { iniciarCarrito, alCambiar, vaciarCarrito, abrirCarrito } from './carrito.js';
 import { iniciarPago } from './pago.js';
 import { iniciarGaleria } from './galeria.js';
+import { iniciarCreadorColor, navegarColor } from './creador-color.js';
 import { iniciarAdmin, mostrarAdmin, ocultarAdmin } from './admin.js';
 
 const $ = (selector, raiz = document) => raiz.querySelector(selector);
@@ -65,10 +66,13 @@ const CLASES_PESTANA_INACTIVA = ['text-texto-suave', 'hover:text-texto'];
 
 function renderEncabezado() {
   const pestanas = negocio.vistas
-    .map(({ id, etiqueta }) => {
+    .map(({ id, etiqueta, icono }) => {
+      // Ícono de cada vista (el mismo de la barra móvil); "Colores" lleva el acento de la marca.
       const enlace = `
         <a href="#${id}" data-pestana="${id}"
-           class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors">${etiqueta}</a>`;
+           class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors xl:px-4">
+          <i class="${icono} text-xs ${id === 'color' ? 'text-acento-texto' : 'opacity-70'}" aria-hidden="true"></i>${etiqueta}
+        </a>`;
       if (id !== 'productos') return enlace;
       return `
         <div class="flex items-center" data-disparador-mega>
@@ -121,8 +125,8 @@ function renderEncabezado() {
           <button id="boton-paleta" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="menu-paletas"
                   class="inline-flex h-11 items-center gap-2 rounded-xl border border-borde bg-superficie px-3 text-sm font-semibold text-texto transition-colors hover:bg-superficie-alt">
             <i class="fa-solid fa-palette text-base text-primario-texto" aria-hidden="true"></i>
-            <span class="hidden xl:inline" data-nombre-paleta></span>
-            <span class="sr-only xl:hidden">Cambiar paleta de colores</span>
+            <span class="hidden whitespace-nowrap 2xl:inline" data-nombre-paleta></span>
+            <span class="sr-only 2xl:hidden">Cambiar paleta de colores</span>
             <span class="hidden text-[0.65rem] text-texto-tenue sm:inline" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
           </button>
           <div id="menu-paletas" hidden
@@ -137,6 +141,15 @@ function renderEncabezado() {
                 class="inline-flex size-11 items-center justify-center rounded-xl border border-borde bg-superficie text-texto transition-colors hover:bg-superficie-alt">
           <i class="fa-solid fa-moon text-base" aria-hidden="true"></i>
         </button>
+
+        ${
+          negocio.admin.habilitado
+            ? `<a href="#admin" aria-label="Vista de administrador"
+                  class="inline-flex h-11 items-center gap-2 rounded-xl border border-primario/40 bg-primario-suave px-3 text-sm font-bold text-primario-texto transition-colors hover:border-primario hover:bg-primario hover:text-white">
+                 <i class="fa-solid fa-user-shield text-base" aria-hidden="true"></i><span class="hidden sm:inline" aria-hidden="true">Admin</span>
+               </a>`
+            : ''
+        }
 
         <button type="button" data-abrir-carrito aria-label="Abrir carrito"
                 class="relative inline-flex size-11 items-center justify-center rounded-xl border border-borde bg-superficie text-texto transition-colors hover:bg-superficie-alt">
@@ -158,7 +171,7 @@ function renderEncabezado() {
 
 function renderPestanasMovil() {
   $('#pestanas-movil').innerHTML = `
-    <div class="pestanas-seguras grid grid-cols-3">
+    <div class="pestanas-seguras grid grid-cols-${negocio.vistas.length}">
       ${negocio.vistas
         .map(
           ({ id, etiqueta, icono }) => `
@@ -236,7 +249,7 @@ function renderInicio() {
 
           <p class="mt-5 max-w-xl text-base leading-relaxed text-pretty text-hero-suave sm:text-lg">
             Herramientas, material eléctrico, plomería, cerrajería, pintura y todo para el hogar,
-            con la asesoría honesta de la familia Navarro desde ${negocio.anioFundacion}.
+            con la asesoría honesta de un negocio familiar desde ${negocio.anioFundacion}.
           </p>
 
           <div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -259,7 +272,7 @@ function renderInicio() {
               <div class="rounded-[1.6rem] border border-slate-200 px-4 pb-4 pt-8 sm:px-6">
                 ${logotipo('w-full')}
                 <figcaption class="mt-4 flex items-center justify-center gap-2 border-t border-slate-200 pt-3 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-slate-500">
-                  <i class="fa-solid fa-store text-primario" aria-hidden="true"></i> Negocio local<span class="hidden sm:inline"> · Familia Navarro</span>
+                  <i class="fa-solid fa-store text-primario" aria-hidden="true"></i> Negocio local<span class="hidden sm:inline"> · Familiar</span>
                 </figcaption>
               </div>
             </div>
@@ -343,7 +356,7 @@ function renderInicio() {
           <div class="border-b border-borde px-6 py-6 sm:px-8">
             <p class="text-sm font-semibold uppercase tracking-wider text-acento-texto">Fundada en ${negocio.anioFundacion}</p>
             <p class="mt-2 text-lg text-texto">
-              por <strong class="font-bold">${historia.fundadores.join('</strong> y <strong class="font-bold">')}</strong>
+              Un negocio familiar con <strong class="font-bold">más de ${decadas} años</strong> en El Pitillal
             </p>
           </div>
           <ul class="divide-y divide-borde">
@@ -800,6 +813,7 @@ function irARuta(ruta, { enfocar }) {
   // Al salir del panel: si se guardaron cambios, se recarga para que todo el sitio los muestre.
   if (ocultarAdmin() && hayCambiosSinAplicar()) return location.reload();
   if (ruta.id === 'productos') navegarCatalogo(ruta.resto);
+  if (ruta.id === 'color') navegarColor(ruta.resto);
   if (ruta.id !== vistaActiva) return mostrarVista(ruta.id, { enfocar });
   // Misma vista (cambio de departamento): sin animación, solo subir al título.
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -821,6 +835,7 @@ function iniciar() {
   renderPestanasMovil();
   renderInicio();
   renderCatalogo($('#vista-productos'));
+  iniciarCreadorColor($('#vista-color'));
   renderContacto();
   renderPie();
   renderWhatsAppFlotante();
