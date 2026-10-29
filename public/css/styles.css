@@ -10,23 +10,23 @@
 @layer base {
   /* Valores mínimos antes de que main.js aplique la paleta completa (evita destellos). */
   :root {
-    --p-fondo: #f4f6fa;
+    --p-fondo: #f8f9fa;
     --p-superficie: #ffffff;
-    --p-borde: #d7dfea;
-    --p-texto: #0d1b33;
-    --p-texto-suave: #44536b;
-    --p-primario: #1a3f8f;
-    --p-destaque: #f5b800;
+    --p-borde: #e2e8f0;
+    --p-texto: #1e293b;
+    --p-texto-suave: #475569;
+    --p-primario: #2544b3;
+    --p-destaque: #e9c46a;
     color-scheme: light;
   }
 
   :root[data-modo='oscuro'] {
-    --p-fondo: #0a1120;
-    --p-superficie: #111a2d;
-    --p-borde: #24314b;
-    --p-texto: #edf1f8;
-    --p-texto-suave: #b3bfd3;
-    --p-primario: #2d5fc8;
+    --p-fondo: #0f172a;
+    --p-superficie: #1e293b;
+    --p-borde: #334155;
+    --p-texto: #f1f5f9;
+    --p-texto-suave: #cbd5e1;
+    --p-primario: #3b82f6;
     color-scheme: dark;
   }
 
@@ -117,6 +117,89 @@
     }
   }
 
+  /* ---------- Indicador "Abierto ahora" ---------- */
+
+  .punto-vivo {
+    animation: punto-vivo 2.4s ease-in-out infinite;
+  }
+
+  @keyframes punto-vivo {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 rgb(16 185 129 / 0.45);
+    }
+    50% {
+      opacity: 0.55;
+      box-shadow: 0 0 0 4px rgb(16 185 129 / 0);
+    }
+  }
+
+  /* ---------- Widget de valoración ---------- */
+
+  .widget-entrada:not([hidden]) {
+    animation: widget-entrada 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  @keyframes widget-entrada {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Catálogo: mega-menú, paneles y avisos ---------- */
+
+  .mega-entrada:not([hidden]) {
+    animation: menu-entrada 0.18s ease-out both;
+    transform-origin: top center;
+  }
+
+  /* Paneles laterales (carrito a la derecha, filtros a la izquierda en móvil). */
+  #carrito:not([hidden]) .panel-lateral {
+    animation: panel-derecha 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  #panel-filtros:not(.hidden) .panel-izquierdo {
+    animation: panel-izquierda 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  @media (min-width: 64rem) {
+    #panel-filtros .panel-izquierdo {
+      animation: none !important;
+    }
+  }
+
+  @keyframes panel-derecha {
+    from {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes panel-izquierda {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  .aviso-entrada:not([hidden]) {
+    animation: widget-entrada 0.25s ease-out both;
+  }
+
+  /* Carriles horizontales de chips: desplazables sin barra visible. */
+  .carril {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .carril::-webkit-scrollbar {
+    display: none;
+  }
+
   /* ---------- Botón flotante de WhatsApp ---------- */
 
   .wa-flotante {
@@ -154,8 +237,14 @@
 
   @media (prefers-reduced-motion: reduce) {
     .vista-entrada,
-    .menu-paletas {
-      animation: none;
+    .menu-paletas,
+    .punto-vivo,
+    .widget-entrada:not([hidden]),
+    .mega-entrada:not([hidden]),
+    .aviso-entrada:not([hidden]),
+    .panel-lateral,
+    .panel-izquierdo {
+      animation: none !important;
     }
 
     .wa-flotante::before {

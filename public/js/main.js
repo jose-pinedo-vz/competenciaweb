@@ -1,4 +1,10 @@
 import { negocio, paletas, trayectoria, direccionCompleta, enlaceWhatsApp } from './data.js';
+import { almacen } from './almacen.js';
+import { estadoNegocio, rangoHorario } from './horario.js';
+import { iniciarValoracion } from './valoracion.js';
+import { departamentos, productosDe } from './catalogo.js';
+import { renderCatalogo, iniciarCatalogo, navegarCatalogo, renderMegaMenu, iniciarMegaMenu } from './tienda.js';
+import { iniciarCarrito, alCambiar } from './carrito.js';
 
 const $ = (selector, raiz = document) => raiz.querySelector(selector);
 const $$ = (selector, raiz = document) => [...raiz.querySelectorAll(selector)];
@@ -7,7 +13,13 @@ const raiz = document.documentElement;
 const anioActual = new Date().getFullYear();
 const { decadas } = trayectoria();
 
-const urlMapaEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(direccionCompleta())}&z=17&output=embed`;
+const { lat, lon, verificadas } = negocio.contacto.coordenadas;
+const urlMapaEmbed =
+  `https://www.openstreetmap.org/export/embed.html?layer=mapnik&bbox=${lon - 0.006},${lat - 0.0045},${lon + 0.006},${lat + 0.0045}` +
+  (verificadas ? `&marker=${lat},${lon}` : '');
+const urlMapaGrande = verificadas
+  ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=18/${lat}/${lon}`
+  : `https://www.openstreetmap.org/search?query=${encodeURIComponent(direccionCompleta())}`;
 const urlComoLlegar = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionCompleta())}`;
 
 const enlaceExterno = 'target="_blank" rel="noopener noreferrer"';
@@ -17,23 +29,6 @@ const tituloBase = document.title;
 
 const CLAVE_PALETA = 'arcos-paleta';
 const CLAVE_MODO = 'arcos-modo';
-
-const almacen = {
-  leer(clave) {
-    try {
-      return localStorage.getItem(clave);
-    } catch {
-      return null;
-    }
-  },
-  guardar(clave, valor) {
-    try {
-      localStorage.setItem(clave, valor);
-    } catch {
-      /* Sin almacenamiento (modo privado): la preferencia dura solo esta visita. */
-    }
-  },
-};
 
 const estado = {
   paleta: paletas.some((p) => p.id === raiz.dataset.paleta) ? raiz.dataset.paleta : paletas[0].id,
@@ -65,11 +60,20 @@ const CLASES_PESTANA_INACTIVA = ['text-texto-suave', 'hover:text-texto'];
 
 function renderEncabezado() {
   const pestanas = negocio.vistas
-    .map(
-      ({ id, etiqueta }) => `
+    .map(({ id, etiqueta }) => {
+      const enlace = `
         <a href="#${id}" data-pestana="${id}"
-           class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors">${etiqueta}</a>`
-    )
+           class="rounded-lg px-4 py-2 text-sm font-semibold transition-colors">${etiqueta}</a>`;
+      if (id !== 'productos') return enlace;
+      return `
+        <div class="flex items-center" data-disparador-mega>
+          ${enlace}
+          <button id="boton-mega" type="button" aria-expanded="false" aria-controls="mega-menu" aria-label="Ver departamentos"
+                  class="group -ml-1 flex size-8 items-center justify-center rounded-lg text-xs text-texto-tenue transition-colors hover:bg-superficie hover:text-texto aria-expanded:text-primario-texto">
+            <span class="transition-transform duration-200 group-aria-expanded:rotate-180" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
+          </button>
+        </div>`;
+    })
     .join('');
 
   const opcionesPaleta = paletas
@@ -121,13 +125,21 @@ function renderEncabezado() {
           <i class="fa-solid fa-moon text-base" aria-hidden="true"></i>
         </button>
 
+        <button type="button" data-abrir-carrito aria-label="Abrir carrito"
+                class="relative inline-flex size-11 items-center justify-center rounded-xl border border-borde bg-superficie text-texto transition-colors hover:bg-superficie-alt">
+          <i class="fa-solid fa-cart-shopping text-base" aria-hidden="true"></i>
+          <span data-contador-carrito
+                class="absolute -right-1.5 -top-1.5 hidden min-w-5 rounded-full bg-acento px-1 text-center text-[0.68rem] font-bold leading-5 text-white ring-2 ring-superficie"></span>
+        </button>
+
         <a href="${enlaceWhatsApp(negocio.mensajesWhatsApp.cotizacion)}" ${enlaceExterno}
-           class="hidden h-11 items-center gap-2 rounded-xl bg-acento px-4 text-sm font-bold text-white shadow-sm transition-colors hover:bg-acento-hover sm:inline-flex">
+           class="hidden h-11 items-center gap-2 rounded-xl bg-acento px-4 text-sm font-bold text-white shadow-sm transition-colors hover:bg-acento-hover md:inline-flex">
           <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i> Cotizar
         </a>
       </div>
     </div>
     <div class="franja-marca h-1" aria-hidden="true"></div>
+    ${renderMegaMenu()}
     <p id="anuncio-tema" class="sr-only" aria-live="polite"></p>`;
 }
 
@@ -155,7 +167,7 @@ function renderInicio() {
   const datos = [
     { valor: `+${decadas}`, texto: 'años de trayectoria', icono: 'fa-solid fa-award' },
     { valor: negocio.anioFundacion, texto: 'año de fundación', icono: 'fa-solid fa-calendar-check' },
-    { valor: negocio.categorias.length, texto: 'líneas de producto', icono: 'fa-solid fa-boxes-stacked' },
+    { valor: departamentos.filter((d) => !d.esOutlet).length, texto: 'departamentos', icono: 'fa-solid fa-boxes-stacked' },
   ];
 
   $('#vista-inicio').innerHTML = `
@@ -173,7 +185,7 @@ function renderInicio() {
           </h1>
 
           <p class="mt-5 max-w-xl text-base leading-relaxed text-pretty text-hero-suave sm:text-lg">
-            Plomería, adhesivos, impermeabilizantes, tornillería, material eléctrico y pintura,
+            Herramientas, material eléctrico, plomería, cerrajería, pintura y todo para el hogar,
             con la asesoría honesta de la familia Navarro desde ${negocio.anioFundacion}.
           </p>
 
@@ -215,6 +227,35 @@ function renderInicio() {
           )
           .join('')}
       </dl>
+
+      <section class="mt-12 sm:mt-16" aria-labelledby="titulo-departamentos">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-acento-texto">Catálogo</p>
+            <h2 id="titulo-departamentos" class="mt-2 text-2xl font-extrabold tracking-tight text-texto sm:text-3xl">Compra por departamento</h2>
+          </div>
+          <a href="#productos" class="hidden shrink-0 items-center gap-1.5 text-sm font-bold text-primario-texto hover:text-acento-texto sm:inline-flex">
+            Ver catálogo <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+          </a>
+        </div>
+        <ul class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+          ${departamentos
+            .map(
+              (d) => `
+              <li>
+                <a href="#productos/${d.id}"
+                   class="group flex h-full flex-col items-center gap-3 rounded-2xl border p-4 text-center transition duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 ${d.esOutlet ? 'border-acento/30 bg-acento/5 hover:border-acento/60' : 'border-borde bg-superficie hover:border-primario/40'}">
+                  <span class="flex size-12 items-center justify-center rounded-xl text-lg transition-colors ${d.esOutlet ? 'bg-acento text-white' : 'bg-primario-suave text-primario-texto group-hover:bg-primario group-hover:text-white'}">
+                    <i class="${d.icono}" aria-hidden="true"></i>
+                  </span>
+                  <span class="text-sm font-bold leading-tight text-texto">${d.nombre}</span>
+                  <span class="text-xs text-texto-tenue">${productosDe(d.id).length} productos</span>
+                </a>
+              </li>`
+            )
+            .join('')}
+        </ul>
+      </section>
 
       <div class="mt-12 grid items-start gap-8 sm:mt-16 lg:grid-cols-2 lg:gap-14">
         <div>
@@ -275,71 +316,10 @@ function renderInicio() {
     </div>`;
 }
 
-/* ---------- Vista: Productos ---------- */
-
-function renderProductos() {
-  const tarjetas = negocio.categorias
-    .map(
-      ({ icono, nombre, descripcion, marcas, productos }) => `
-      <article class="group flex flex-col rounded-2xl border border-borde bg-superficie p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primario/40 hover:shadow-xl hover:shadow-black/5">
-        <div class="flex size-14 items-center justify-center rounded-xl bg-primario-suave text-2xl text-primario-texto transition duration-300 group-hover:bg-primario group-hover:text-white">
-          <i class="${icono}" aria-hidden="true"></i>
-        </div>
-
-        <h2 class="mt-5 text-lg font-bold text-texto">${nombre}</h2>
-        <p class="mt-2 text-sm leading-relaxed text-texto-suave">${descripcion}</p>
-
-        ${
-          marcas.length
-            ? `<ul class="mt-4 flex flex-wrap gap-2" aria-label="Marcas">
-                ${marcas.map((m) => `<li class="rounded-md bg-destaque/15 px-2.5 py-1 text-xs font-bold text-texto ring-1 ring-destaque/40">${m}</li>`).join('')}
-              </ul>`
-            : ''
-        }
-
-        <ul class="mt-5 space-y-2 border-t border-borde pt-5 text-sm text-texto-suave">
-          ${productos
-            .map((p) => `<li class="flex items-start gap-2.5"><i class="fa-solid fa-check mt-1 text-xs text-acento-texto" aria-hidden="true"></i>${p}</li>`)
-            .join('')}
-        </ul>
-
-        <a href="${enlaceWhatsApp(`¡Hola, Los Arcos! Quisiera cotizar productos de ${nombre.toLowerCase()}:\n\n- `)}" ${enlaceExterno}
-           class="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-bold text-primario-texto transition-colors hover:text-acento-texto">
-          Cotizar esta línea
-          <i class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true"></i>
-        </a>
-      </article>`
-    )
-    .join('');
-
-  $('#vista-productos').innerHTML = `
-    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      ${encabezadoVista({
-        id: 'titulo-productos',
-        etiqueta: 'Catálogo',
-        titulo: 'Todo lo que tu obra y tu hogar necesitan',
-        subtitulo: 'Trabajamos con marcas de confianza y te ayudamos a elegir la pieza correcta a la primera.',
-      })}
-
-      <div class="mt-10 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-4">${tarjetas}</div>
-
-      <div class="mt-10 flex flex-col items-center justify-between gap-5 rounded-2xl border border-dashed border-borde bg-superficie p-6 text-center sm:flex-row sm:p-8 sm:text-left">
-        <div>
-          <p class="text-lg font-bold text-texto">¿No encuentras lo que buscas?</p>
-          <p class="mt-1 text-sm text-texto-suave">Tenemos mucho más en tienda. Mándanos una foto o el nombre de la pieza y te decimos si la tenemos.</p>
-        </div>
-        <a href="${enlaceWhatsApp('¡Hola, Los Arcos! ¿Tienen disponible este producto?\n\n')}" ${enlaceExterno}
-           class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primario px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-primario-hover">
-          <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i> Preguntar disponibilidad
-        </a>
-      </div>
-    </div>`;
-}
-
-/* ---------- Vista: Ubicación y contacto ---------- */
+/* ---------- Vista: Ubicación, horarios y contacto ---------- */
 
 function renderContacto() {
-  const { contacto } = negocio;
+  const { contacto, horario } = negocio;
   const d = contacto.direccion;
   const canales = [
     {
@@ -348,7 +328,7 @@ function renderContacto() {
       icono: 'fa-brands fa-whatsapp',
       fondo: 'bg-whatsapp',
       titulo: 'WhatsApp',
-      texto: 'Cotizaciones y disponibilidad al momento.',
+      texto: `${contacto.whatsappTexto} · Cotizaciones y disponibilidad.`,
       accion: 'Enviar mensaje',
     },
     {
@@ -357,7 +337,7 @@ function renderContacto() {
       icono: 'fa-solid fa-phone',
       fondo: 'bg-acento',
       titulo: 'Llámanos',
-      texto: contacto.telefono,
+      texto: `${contacto.telefono} · Atención en horario de tienda.`,
       accion: 'Llamar ahora',
     },
     {
@@ -369,7 +349,30 @@ function renderContacto() {
       texto: 'Novedades, promociones y avisos de la tienda.',
       accion: 'Visitar página',
     },
+    {
+      href: urlComoLlegar,
+      externo: true,
+      icono: 'fa-solid fa-diamond-turn-right',
+      fondo: 'bg-primario',
+      titulo: 'Cómo llegar',
+      texto: `${d.calle}, ${d.localidad}.`,
+      accion: 'Abrir ruta',
+    },
   ];
+
+  const filasHorario = horario.bloques
+    .map(
+      (bloque) => `
+      <li data-dias="${bloque.dias.join(',')}"
+          class="fila-horario flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors">
+        <span class="flex flex-wrap items-center gap-x-2 gap-y-1 font-semibold text-texto">
+          ${bloque.etiqueta}
+          <span data-hoy class="hidden rounded-md bg-primario px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-white">Hoy</span>
+        </span>
+        <span class="shrink-0 whitespace-nowrap text-right tabular-nums text-texto-suave">${rangoHorario(bloque)}</span>
+      </li>`
+    )
+    .join('');
 
   $('#vista-contacto').innerHTML = `
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -380,74 +383,138 @@ function renderContacto() {
         subtitulo: 'Te esperamos en el Centro de El Pitillal, sobre la calle Vicente Guerrero.',
       })}
 
-      <div class="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-5">
-        ${canales
-          .map(
-            ({ href, externo, icono, fondo, titulo, texto, accion }) => `
-            <a href="${href}" ${externo ? enlaceExterno : ''}
-               class="group flex items-center gap-4 rounded-2xl border border-borde bg-superficie p-5 transition duration-300 hover:-translate-y-1 hover:border-primario/40 hover:shadow-lg hover:shadow-black/5 sm:flex-col sm:items-start sm:p-6">
-              <span class="flex size-12 shrink-0 items-center justify-center rounded-xl ${fondo} text-xl text-white shadow-md">
-                <i class="${icono}" aria-hidden="true"></i>
-              </span>
-              <span class="min-w-0 flex-1">
-                <span class="block text-lg font-bold text-texto">${titulo}</span>
-                <span class="mt-0.5 block text-sm text-texto-suave">${texto}</span>
-                <span class="mt-3 hidden items-center gap-2 text-sm font-bold text-primario-texto sm:inline-flex">
-                  ${accion}
-                  <i class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true"></i>
-                </span>
-              </span>
-              <span class="text-sm text-texto-tenue sm:hidden" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
-            </a>`
-          )
-          .join('')}
-      </div>
-
-      <div class="mt-5 grid gap-5 lg:grid-cols-5">
-        <div class="flex flex-col gap-4 rounded-2xl border border-borde bg-superficie p-6 lg:col-span-2">
-          <div class="flex gap-4">
-            <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primario text-lg text-white">
-              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-            </span>
-            <address class="not-italic">
-              <p class="text-xs font-bold uppercase tracking-wider text-texto-tenue">Dirección</p>
-              <p class="mt-1 font-bold text-texto">${d.calle}, ${d.colonia}</p>
-              <p class="text-texto-suave">${d.localidad}, C.P. ${d.cp}</p>
-              <p class="text-texto-suave">${d.ciudad}, ${d.estado}, ${d.pais}</p>
-            </address>
+      <div class="mt-10 grid gap-6 sm:mt-12 lg:grid-cols-12 lg:items-start lg:gap-8">
+        <aside class="overflow-hidden rounded-3xl border border-borde bg-superficie lg:col-span-5" aria-label="Ubicación y horarios">
+          <div class="relative h-60 bg-superficie-alt sm:h-72">
+            <iframe src="${urlMapaEmbed}" title="Mapa de la zona de ${negocio.nombre} en El Pitillal"
+                    class="absolute inset-0 size-full border-0 oscuro:brightness-[.85]" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <a href="${urlMapaGrande}" ${enlaceExterno}
+               class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-lg bg-superficie/95 px-3 py-1.5 text-xs font-bold text-texto shadow-md ring-1 ring-borde backdrop-blur transition-colors hover:text-primario-texto">
+              <i class="fa-solid fa-up-right-from-square text-[0.65rem]" aria-hidden="true"></i> Ver mapa grande
+            </a>
           </div>
 
-          <div class="flex gap-4 border-t border-borde pt-4">
-            <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primario text-lg text-white">
-              <i class="fa-solid fa-phone" aria-hidden="true"></i>
-            </span>
-            <div>
-              <p class="text-xs font-bold uppercase tracking-wider text-texto-tenue">Teléfono / WhatsApp</p>
-              <a href="${contacto.telefonoHref}" class="mt-1 block font-bold text-texto transition-colors hover:text-acento-texto">${contacto.telefono}</a>
+          <div class="space-y-6 p-6 sm:p-7">
+            <blockquote class="border-l-4 border-destaque pl-4 text-base font-semibold italic leading-snug text-texto">
+              “${negocio.eslogan}”
+            </blockquote>
+
+            <ul class="space-y-4">
+              <li class="flex gap-4">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primario-suave text-primario-texto">
+                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                </span>
+                <address class="not-italic">
+                  <p class="text-xs font-bold uppercase tracking-wider text-texto-tenue">Dirección</p>
+                  <p class="mt-0.5 font-bold text-texto">${d.calle}, ${d.colonia}</p>
+                  <p class="text-sm text-texto-suave">${d.localidad}, C.P. ${d.cp}, ${d.ciudad}, ${d.estado}</p>
+                </address>
+              </li>
+              <li class="flex gap-4">
+                <span class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primario-suave text-primario-texto">
+                  <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                </span>
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-texto-tenue">Teléfono</p>
+                  <a href="${contacto.telefonoHref}" class="mt-0.5 block font-bold tabular-nums text-texto transition-colors hover:text-acento-texto">${contacto.telefono}</a>
+                </div>
+              </li>
+            </ul>
+
+            <div class="border-t border-borde pt-6">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <h2 class="flex items-center gap-2 font-bold text-texto">
+                  <i class="fa-regular fa-clock text-primario-texto" aria-hidden="true"></i> Horario de atención
+                </h2>
+                <p id="estado-negocio" role="status"
+                   class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ring-1"></p>
+              </div>
+              <p id="estado-detalle" class="mt-2 text-sm text-texto-suave"></p>
+              <ul class="mt-4 space-y-1">${filasHorario}</ul>
+              <p class="mt-3 text-xs text-texto-tenue">Horario de Puerto Vallarta (tiempo del centro de México).</p>
             </div>
           </div>
+        </aside>
 
-          <a href="${urlComoLlegar}" ${enlaceExterno}
-             class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-acento px-5 py-3.5 font-bold text-white transition-colors hover:bg-acento-hover">
-            <i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Cómo llegar
-          </a>
-        </div>
+        <div class="lg:col-span-7">
+          <h2 class="text-xl font-extrabold tracking-tight text-texto">Canales de atención</h2>
+          <p class="mt-1 text-sm text-texto-suave">Elige el que te quede más cómodo; te respondemos en horario de tienda.</p>
 
-        <div id="contenedor-mapa" class="relative min-h-72 overflow-hidden rounded-2xl border border-borde bg-superficie-alt lg:col-span-3 lg:min-h-80">
-          <div class="patron-claro absolute inset-0" aria-hidden="true"></div>
-          <div class="relative flex h-full min-h-72 flex-col items-center justify-center gap-4 p-8 text-center lg:min-h-80">
-            <span class="flex size-16 items-center justify-center rounded-full bg-superficie text-2xl text-acento-texto shadow-md">
-              <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
-            </span>
-            <p class="max-w-xs text-sm text-texto-suave">${d.calle}, ${d.localidad}, ${d.ciudad}</p>
-            <button id="boton-mapa" type="button"
-                    class="rounded-xl border border-borde bg-superficie px-5 py-2.5 text-sm font-bold text-texto shadow-sm transition-colors hover:bg-fondo">
-              Mostrar mapa de referencia
-            </button>
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            ${canales
+              .map(
+                ({ href, externo, icono, fondo, titulo, texto, accion }) => `
+                <a href="${href}" ${externo ? enlaceExterno : ''}
+                   class="group flex items-center gap-4 rounded-2xl border border-borde bg-superficie p-5 transition duration-300 hover:-translate-y-1 hover:border-primario/40 hover:shadow-lg hover:shadow-black/5 sm:flex-col sm:items-start sm:p-6">
+                  <span class="flex size-12 shrink-0 items-center justify-center rounded-xl ${fondo} text-xl text-white shadow-md">
+                    <i class="${icono}" aria-hidden="true"></i>
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-lg font-bold text-texto">${titulo}</span>
+                    <span class="mt-0.5 block text-sm text-texto-suave">${texto}</span>
+                    <span class="mt-3 hidden items-center gap-2 text-sm font-bold text-primario-texto sm:inline-flex">
+                      ${accion}
+                      <i class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true"></i>
+                    </span>
+                  </span>
+                  <span class="text-sm text-texto-tenue sm:hidden" aria-hidden="true"><i class="fa-solid fa-chevron-right"></i></span>
+                </a>`
+              )
+              .join('')}
+          </div>
+
+          <div class="relative mt-6 overflow-hidden rounded-3xl bg-hero-fondo p-6 sm:p-8">
+            <div class="patron-industrial absolute inset-0" aria-hidden="true"></div>
+            <div class="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="text-lg font-extrabold text-hero-texto">Cotiza antes de venir</p>
+                <p class="mt-1 text-sm text-hero-suave">Mándanos tu lista por WhatsApp y te confirmamos precio y disponibilidad.</p>
+              </div>
+              <a href="${enlaceWhatsApp(negocio.mensajesWhatsApp.cotizacion)}" ${enlaceExterno}
+                 class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-whatsapp px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-whatsapp-hover">
+                <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i> Enviar mi lista
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </div>`;
+}
+
+/* ---------- Estado "Abierto ahora" ---------- */
+
+const CLASES_ESTADO = {
+  abierto: ['bg-emerald-500/12', 'text-emerald-700', 'ring-emerald-500/30', 'oscuro:text-emerald-300'],
+  pronto: ['bg-destaque/15', 'text-texto', 'ring-destaque/50'],
+  cerrado: ['bg-acento/10', 'text-acento-texto', 'ring-acento/30'],
+};
+const CLASES_PUNTO = { abierto: 'bg-emerald-500', pronto: 'bg-destaque', cerrado: 'bg-acento' };
+
+function actualizarEstadoNegocio() {
+  const { abierto, cierraPronto, dia, detalle } = estadoNegocio();
+  const clave = abierto ? (cierraPronto ? 'pronto' : 'abierto') : 'cerrado';
+  const insignia = $('#estado-negocio');
+
+  Object.values(CLASES_ESTADO).flat().forEach((c) => insignia.classList.remove(c));
+  insignia.classList.add(...CLASES_ESTADO[clave]);
+  insignia.innerHTML = `
+    <span class="size-2 rounded-full ${CLASES_PUNTO[clave]} ${abierto ? 'punto-vivo' : ''}" aria-hidden="true"></span>
+    ${abierto ? (cierraPronto ? 'Cierra pronto' : 'Abierto ahora') : 'Cerrado'}`;
+  $('#estado-detalle').textContent = detalle;
+
+  $$('.fila-horario').forEach((fila) => {
+    const esHoy = fila.dataset.dias.split(',').map(Number).includes(dia);
+    fila.classList.toggle('bg-primario-suave', esHoy);
+    $('[data-hoy]', fila).classList.toggle('hidden', !esHoy);
+    esHoy ? fila.setAttribute('aria-current', 'date') : fila.removeAttribute('aria-current');
+  });
+}
+
+function iniciarEstadoNegocio() {
+  actualizarEstadoNegocio();
+  setInterval(actualizarEstadoNegocio, 60_000);
+  document.addEventListener('visibilitychange', () => document.hidden || actualizarEstadoNegocio());
 }
 
 /* ---------- Pie y botón flotante ---------- */
@@ -594,11 +661,16 @@ function iniciarModo() {
 
 const idsVistas = new Set(negocio.vistas.map((v) => v.id));
 
-/** Vista indicada por el hash; null si el hash apunta a otra cosa (p. ej. #contenido). */
-function vistaDesdeHash() {
-  const id = location.hash.slice(1);
-  if (!id) return 'inicio';
-  return idsVistas.has(id) ? id : null;
+let vistaActiva = null;
+
+/**
+ * Ruta indicada por el hash: { id, resto } (p. ej. #productos/herramientas/electricas);
+ * null si el hash apunta a otra cosa (p. ej. #contenido).
+ */
+function rutaDesdeHash() {
+  const [id, ...resto] = decodeURIComponent(location.hash.slice(1)).split('/');
+  if (!id) return { id: 'inicio', resto: [] };
+  return idsVistas.has(id) ? { id, resto } : null;
 }
 
 function marcarPestanas(id) {
@@ -619,6 +691,7 @@ function marcarPestanas(id) {
 }
 
 function mostrarVista(id, { enfocar = false } = {}) {
+  vistaActiva = id;
   $$('[data-vista]').forEach((seccion) => {
     const activa = seccion.dataset.vista === id;
     seccion.hidden = !activa;
@@ -638,25 +711,20 @@ function mostrarVista(id, { enfocar = false } = {}) {
   if (enfocar) $(`#titulo-${id}`).focus({ preventScroll: true });
 }
 
-function iniciarNavegacion() {
-  window.addEventListener('hashchange', () => {
-    const id = vistaDesdeHash();
-    if (id) mostrarVista(id, { enfocar: true });
-  });
-  mostrarVista(vistaDesdeHash() ?? 'inicio');
+function irARuta(ruta, { enfocar }) {
+  if (ruta.id === 'productos') navegarCatalogo(ruta.resto);
+  if (ruta.id !== vistaActiva) return mostrarVista(ruta.id, { enfocar });
+  // Misma vista (cambio de departamento): sin animación, solo subir al título.
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (enfocar) $(`#titulo-${ruta.id}`).focus({ preventScroll: true });
 }
 
-function iniciarMapa() {
-  $('#boton-mapa').addEventListener(
-    'click',
-    () => {
-      $('#contenedor-mapa').innerHTML = `
-        <iframe src="${urlMapaEmbed}" title="Mapa de ubicación de ${negocio.nombre}"
-                class="absolute inset-0 size-full border-0" loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>`;
-    },
-    { once: true }
-  );
+function iniciarNavegacion() {
+  window.addEventListener('hashchange', () => {
+    const ruta = rutaDesdeHash();
+    if (ruta) irARuta(ruta, { enfocar: true });
+  });
+  irARuta(rutaDesdeHash() ?? { id: 'inicio', resto: [] }, { enfocar: false });
 }
 
 /* ---------- Arranque ---------- */
@@ -665,7 +733,7 @@ function iniciar() {
   renderEncabezado();
   renderPestanasMovil();
   renderInicio();
-  renderProductos();
+  renderCatalogo($('#vista-productos'));
   renderContacto();
   renderPie();
   renderWhatsAppFlotante();
@@ -673,8 +741,18 @@ function iniciar() {
   aplicarTema();
   iniciarSelectorPaleta();
   iniciarModo();
+  iniciarCarrito($('#carrito-contenedor'));
+  alCambiar((piezas) => {
+    const contador = $('[data-contador-carrito]');
+    contador.textContent = piezas > 99 ? '99+' : piezas;
+    contador.classList.toggle('hidden', !piezas);
+    $('[data-abrir-carrito]').setAttribute('aria-label', piezas ? `Abrir carrito (${piezas} piezas)` : 'Abrir carrito');
+  });
+  iniciarCatalogo($('#vista-productos'));
+  iniciarMegaMenu();
   iniciarNavegacion();
-  iniciarMapa();
+  iniciarEstadoNegocio();
+  iniciarValoracion($('#valoracion-flotante'));
 }
 
 iniciar();

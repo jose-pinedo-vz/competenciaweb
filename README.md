@@ -17,8 +17,14 @@ Sitio estático de **Ferretería y Tlapalería Los Arcos**, negocio familiar fun
 public/
 ├── index.html      # Estructura base, metaetiquetas SEO y tema de Tailwind (@theme)
 ├── css/styles.css  # Patrones, animaciones y ajustes de accesibilidad
-├── js/data.js      # Toda la información del negocio (fuente única de verdad)
-├── js/main.js      # Renderiza las secciones a partir de data.js y maneja la interacción
+├── js/data.js       # Toda la información del negocio (fuente única de verdad)
+├── js/main.js       # Renderiza las vistas a partir de data.js y maneja la interacción
+├── js/catalogo.js   # Departamentos, subcategorías y productos (datos de demostración)
+├── js/tienda.js     # Vista de catálogo (filtros, búsqueda, orden) y mega-menú
+├── js/carrito.js    # Carrito con envío del pedido por WhatsApp
+├── js/horario.js    # Cálculo de "Abierto ahora / Cerrado" con la hora de Puerto Vallarta
+├── js/valoracion.js # Tarjeta flotante de valoración con estrellas
+├── js/almacen.js    # Acceso seguro a localStorage / sessionStorage
 └── img/            # Imágenes y favicon
 ```
 
@@ -27,9 +33,25 @@ Para cambiar textos, teléfono, dirección o productos, edita únicamente `publi
 ## Vistas y temas
 
 - **Pestañas:** el sitio tiene tres vistas independientes (`#inicio`, `#productos`, `#contacto`). En escritorio aparecen como pestañas en el encabezado y en móvil como barra inferior. Cada vista tiene su propia URL, así que se puede compartir el enlace directo y usar el botón *Atrás* del navegador.
-- **Paletas de color:** el botón con el ícono de paleta cambia entre *Confiabilidad Industrial*, *Tradición y Herramienta* y *Moderno y Dinámico*. Los colores viven en `paletas` dentro de `data.js`; cada clave se publica como variable CSS `--p-*` y Tailwind la expone como color semántico (`bg-primario`, `text-texto-suave`, `border-borde`…).
+- **Paletas de color:** el botón con el ícono de paleta cambia entre *Corporativa Los Arcos* (predeterminada), *Confiabilidad Industrial*, *Tradición y Herramienta* y *Moderno y Dinámico*. Los colores viven en `paletas` dentro de `data.js`; cada clave se publica como variable CSS `--p-*` y Tailwind la expone como color semántico (`bg-primario`, `text-texto-suave`, `border-borde`…).
 - **Modo claro / oscuro:** el botón de luna o sol alterna el modo. Si el visitante no ha elegido uno, se sigue la preferencia del sistema.
 - La paleta y el modo se guardan en `localStorage` (`arcos-paleta`, `arcos-modo`). Para volver a los valores de fábrica, borra esas claves desde las herramientas de desarrollo.
+
+## Catálogo y carrito
+
+- **Estructura:** 7 departamentos (nivel 1) → subcategorías (nivel 2) → productos (nivel 3), definidos en `public/js/catalogo.js`. *Outlet y Ofertas* agrupa automáticamente los productos con `promo`.
+- **Rutas:** `#productos`, `#productos/herramientas`, `#productos/herramientas/electricas`… Se pueden compartir y funcionan con *Atrás*.
+- **Mega-menú (escritorio):** se abre al pasar el cursor sobre *Productos* o con la flecha junto a la pestaña; se cierra con Esc o al hacer clic fuera.
+- **Filtros:** marca, rango de precio, solo disponibles, solo ofertas, búsqueda por nombre/marca/SKU y orden. En móvil se abren en un panel lateral con el botón *Filtros*.
+- **Carrito:** se guarda en `localStorage` (`arcos-carrito`). Como el sitio es estático, el pedido se envía por WhatsApp con la lista y el total para que la tienda lo confirme.
+- ⚠ **Los productos, precios y existencias son de demostración** (`catalogoDemostracion = true` muestra un aviso en el catálogo). Sustitúyelos por el inventario real y pon `catalogoDemostracion` en `false`.
+- **Imágenes:** agrega `imagen: 'img/productos/<archivo>'` a cada producto; mientras no exista, se muestra el ícono de la subcategoría.
+
+## Horario y valoración
+
+- **Horario:** se edita en `negocio.horario` (`data.js`). El estado *Abierto ahora / Cierra pronto / Cerrado* se calcula con la zona horaria `America/Mexico_City` (la de Puerto Vallarta), así que es correcto aunque el visitante esté en otro país. Se actualiza cada minuto.
+- **Valoración:** la tarjeta aparece a los 4 s (`negocio.valoracion.retrasoMs`). Si se cierra con la X, no vuelve a salir durante esa visita (`sessionStorage`). Una vez calificado, no vuelve a salir en ese navegador (`localStorage` → `arcos-valoracion`). Para verla de nuevo, borra esas claves.
+- La calificación **no se envía a ningún servidor** (el sitio es estático). El agradecimiento ofrece mandarla al negocio por WhatsApp.
 
 ## Probar en local
 

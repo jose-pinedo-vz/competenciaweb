@@ -11,3 +11,10 @@
 - Código limpio, modular, comentado en español. Separar datos (`data.js`), lógica/renderizado (`main.js`) y estilos (`styles.css`).
 - Asegurar accesibilidad (contrastes AA, atributos alt, HTML semántico, áreas táctiles amplias para móviles) y diseño mobile-first impecable.
 - Antes de dar una tarea por terminada: verificar sintaxis (`node --check`), comprobar que todos los enlaces y archivos referenciados existan, e informar al usuario qué cambió y cómo probarlo.
+
+
+## Flujo de Trabajo en Equipo (Co-Agente)
+- Claude actúa como el **Ejecutor Frontend Principal** (escribe archivos, valida sintaxis y prueba).
+- Existe un **Agente Auditor de QA** que revisará los avances y enviará sugerencias o correcciones.
+- Regla de oro para Claude: Cada cambio debe ser modular, atómico y fácil de auditar. 
+- Al finalizar cualquier tarea, Claude debe dejar una nota clara en `PENDIENTES.md` o en la consola indicando qué archivos modificó para que el Agente Auditor pueda revisarlos rápidamente.

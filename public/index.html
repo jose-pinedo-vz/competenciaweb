@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es-MX" data-paleta="industrial" data-modo="claro">
+<html lang="es-MX" data-paleta="corporativa" data-modo="claro">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -7,7 +7,7 @@
     <title>Ferretería y Tlapalería Los Arcos | El Pitillal, Puerto Vallarta</title>
     <meta
       name="description"
-      content="Ferretería y Tlapalería Los Arcos: desde 1984 en El Pitillal, Puerto Vallarta. Plomería, adhesivos, impermeabilizantes, tornillería, material eléctrico y pintura. Cotiza por WhatsApp."
+      content="Ferretería y Tlapalería Los Arcos: desde 1984 en El Pitillal, Puerto Vallarta. Herramientas, construcción, plomería, cerrajería, hogar y seguridad industrial. Cotiza por WhatsApp."
     />
     <meta name="keywords" content="ferretería, tlapalería, El Pitillal, Puerto Vallarta, plomería, Coflex, Fleximatic, Presto, impermeabilizantes, pintura, material eléctrico" />
     <meta name="author" content="Ferretería y Tlapalería Los Arcos" />
@@ -44,6 +44,9 @@
     <style type="text/tailwindcss">
       /* Colores semánticos: cada uno apunta a una variable --p-* que main.js
          cambia en tiempo real según la paleta y el modo elegidos (ver data.js). */
+      /* oscuro:… aplica estilos solo en modo oscuro (data-modo en <html>). */
+      @custom-variant oscuro (&:where([data-modo="oscuro"], [data-modo="oscuro"] *));
+
       @theme inline {
         --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 
@@ -99,12 +102,15 @@
     <nav id="pestanas-movil" class="fixed inset-x-0 bottom-0 z-50 border-t border-borde bg-superficie/95 backdrop-blur-md lg:hidden" aria-label="Secciones"></nav>
 
     <div id="whatsapp-flotante"></div>
+    <div id="valoracion-flotante"></div>
+    <div id="carrito-contenedor"></div>
 
     <noscript>
       <div style="max-width: 36rem; margin: 0 auto; padding: 1.5rem; text-align: center">
         <p><strong>Ferretería y Tlapalería Los Arcos</strong></p>
         <p>Vicente Guerrero 148, Centro, El Pitillal, C.P. 48290, Puerto Vallarta, Jalisco.</p>
-        <p>Tel. / WhatsApp: <a href="tel:+5213330105206">+52 1 33 3010 5206</a></p>
+        <p>Teléfono: <a href="tel:+523222245833">322 224 5833</a> · WhatsApp: <a href="https://wa.me/5213330105206">+52 1 33 3010 5206</a></p>
+        <p>Lunes a viernes 8:00 a. m. – 7:30 p. m. · Sábado 8:00 a. m. – 5:30 p. m. · Domingo 9:00 a. m. – 1:30 p. m.</p>
       </div>
     </noscript>
 

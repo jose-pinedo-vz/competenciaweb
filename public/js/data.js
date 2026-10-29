@@ -55,10 +55,40 @@ export const negocio = {
       estado: 'Jalisco',
       pais: 'México',
     },
-    telefono: '+52 1 33 3010 5206',
-    telefonoHref: 'tel:+5213330105206',
+    telefono: '322 224 5833',
+    telefonoHref: 'tel:+523222245833',
     whatsapp: '5213330105206',
+    whatsappTexto: '+52 1 33 3010 5206',
     facebook: 'https://www.facebook.com/losarcostlapaleria?locale=es_LA',
+    /**
+     * Coordenadas del local para el marcador del mapa (OpenStreetMap).
+     * Pendiente: las búsquedas de OSM no ubican el número 148 de Vicente Guerrero en El Pitillal Centro,
+     * así que mientras `verificadas` sea false el mapa muestra la zona sin marcador.
+     * Para obtenerlas: en openstreetmap.org, clic derecho sobre el local → "Mostrar dirección".
+     */
+    coordenadas: { lat: 20.651, lon: -105.216, verificadas: false },
+  },
+
+  /**
+   * Horario de atención. `dias` usa la numeración de JavaScript (0 = domingo … 6 = sábado)
+   * y las horas van en formato 24 h. El estado "Abierto ahora" se calcula con la hora
+   * de Puerto Vallarta (zonaHoraria), sin importar desde dónde se visite el sitio.
+   */
+  horario: {
+    zonaHoraria: 'America/Mexico_City',
+    bloques: [
+      { etiqueta: 'Lunes a viernes', dias: [1, 2, 3, 4, 5], abre: '08:00', cierra: '19:30' },
+      { etiqueta: 'Sábado', dias: [6], abre: '08:00', cierra: '17:30' },
+      { etiqueta: 'Domingo', dias: [0], abre: '09:00', cierra: '13:30' },
+    ],
+  },
+
+  valoracion: {
+    titulo: '¿Qué te parece nuestro negocio?',
+    texto: 'Ayúdanos a mejorar, déjanos tu valoración.',
+    etiquetas: ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'],
+    agradecimiento: '¡Gracias por tu valoración!',
+    retrasoMs: 4000,
   },
 
   mensajesWhatsApp: {
@@ -73,45 +103,6 @@ export const negocio = {
     { id: 'productos', etiqueta: 'Productos', icono: 'fa-solid fa-boxes-stacked', titulo: 'Productos y catálogo' },
     { id: 'contacto', etiqueta: 'Contacto', icono: 'fa-solid fa-location-dot', titulo: 'Ubicación y contacto' },
   ],
-
-  categorias: [
-    {
-      id: 'plomeria',
-      icono: 'fa-solid fa-faucet-drip',
-      nombre: 'Plomería y conexiones',
-      descripcion:
-        'Todo para instalaciones hidráulicas y reparaciones en casa: mangueras, llaves y conexiones de las marcas que ya conoces.',
-      marcas: ['Coflex', 'Fleximatic'],
-      productos: ['Mangueras flexibles', 'Llaves y válvulas', 'Conexiones PVC y cobre', 'Accesorios para baño'],
-    },
-    {
-      id: 'adhesivos',
-      icono: 'fa-solid fa-flask',
-      nombre: 'Adhesivos, selladores y químicos',
-      descripcion:
-        'Pegamentos, selladores y productos químicos para reparar, unir y sellar con resultados duraderos.',
-      marcas: ['Presto'],
-      productos: ['Pegamentos de contacto', 'Silicones y selladores', 'Cementos para PVC', 'Solventes y limpiadores'],
-    },
-    {
-      id: 'mantenimiento',
-      icono: 'fa-solid fa-shield-halved',
-      nombre: 'Mantenimiento y protección',
-      descripcion:
-        'Protege techos, muros y superficies de la lluvia y el sol de la costa con impermeabilizantes y recubrimientos.',
-      marcas: [],
-      productos: ['Impermeabilizantes', 'Recubrimientos', 'Selladores para techo', 'Primarios y membranas'],
-    },
-    {
-      id: 'tlapaleria',
-      icono: 'fa-solid fa-screwdriver-wrench',
-      nombre: 'Tlapalería general',
-      descripcion:
-        'Lo de todos los días para la obra, el taller y el hogar: tornillería, material eléctrico y pintura.',
-      marcas: [],
-      productos: ['Tornillería y fijación', 'Material eléctrico', 'Pintura y brochas', 'Herramienta básica'],
-    },
-  ],
 };
 
 /**
@@ -125,6 +116,27 @@ export const negocio = {
  * - hero*: la banda oscura de la portada.
  */
 export const paletas = [
+  {
+    id: 'corporativa',
+    nombre: 'Corporativa Los Arcos',
+    descripcion: 'Azul rey, rojo tlapalería y amarillo ocre.',
+    claro: {
+      fondo: '#f8f9fa', superficie: '#ffffff', superficieAlt: '#f1f3f6', borde: '#e2e8f0',
+      texto: '#1e293b', textoSuave: '#475569', textoTenue: '#64748b',
+      primario: '#2544b3', primarioHover: '#1d3690', primarioTexto: '#2544b3', primarioSuave: '#e8edfa',
+      acento: '#e63946', acentoHover: '#c92f3b', acentoTexto: '#c42536',
+      destaque: '#e9c46a', destaqueTexto: '#3a2a00',
+      heroFondo: '#16296e', heroTexto: '#ffffff', heroSuave: '#c9d3f2',
+    },
+    oscuro: {
+      fondo: '#0f172a', superficie: '#1e293b', superficieAlt: '#172033', borde: '#334155',
+      texto: '#f1f5f9', textoSuave: '#cbd5e1', textoTenue: '#94a3b8',
+      primario: '#3b82f6', primarioHover: '#60a5fa', primarioTexto: '#93c5fd', primarioSuave: '#1e3a5f',
+      acento: '#ef4444', acentoHover: '#f87171', acentoTexto: '#fca5a5',
+      destaque: '#f59e0b', destaqueTexto: '#1f1300',
+      heroFondo: '#0b1224', heroTexto: '#ffffff', heroSuave: '#b6c2d9',
+    },
+  },
   {
     id: 'industrial',
     nombre: 'Confiabilidad Industrial',
